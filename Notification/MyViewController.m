@@ -46,16 +46,18 @@
 
 @implementation MyViewController
 
-static NSString * imageURL = @"http://ro.xdcdn.net/res/Release/iOS/588589_593047.zip";
-
+static NSString * imageURL = @"http://ro.xdcdn.net/res/Develop/iOS/697542_698484_1.zip";
+static NSString * imageURL2 = @"http://ro.xdcdn.net/res/Develop/iOS/697542_698484_0.zip";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self initDownloadTask];
 }
 
 -(void)initDownloadTask
 {
-   
+    __weak typeof(self) weakSelf = self;
+  
 }
 
 
@@ -79,7 +81,7 @@ static NSString * imageURL = @"http://ro.xdcdn.net/res/Release/iOS/588589_593047
 
 - (IBAction)resume:(id)sender {
     NSLog(@"resume");
-    __weak typeof(self) weakSelf = self;
+
 //    [[LFDownloadNetwork shareManager] downloadWithUrl:self.filePath progress:^(float progress) {
 //        dispatch_async(dispatch_get_main_queue(), ^{
 //            weakSelf.progressLabel.text = [NSString stringWithFormat:@"%.2f%%", progress];
@@ -89,25 +91,7 @@ static NSString * imageURL = @"http://ro.xdcdn.net/res/Release/iOS/588589_593047
 //    } failed:^(NSError * _Nonnull error) {
 //        NSLog(@"error = %@", error.localizedDescription);
 //    }];
-    [[DownloadTaskManager shareManager]
-     initWithBlock:^(int errorScode,NSString* errorMsg, int responseCode)
-    {
-        NSLog(@"error = %@", errorMsg);
-    }
-                                     
-    downloadProgress:^(float progress)
-    {
-        dispatch_async(dispatch_get_main_queue(), ^
-        {
-            weakSelf.progressLabel.text = [NSString stringWithFormat:@"%.2f%%", progress];
-            weakSelf.progressview.progress = progress;
-        });
-        
-    }
-    downloadComplete:^(NSString*url)
-    {
-        NSLog(@"下载完成 = %@", url);
-    }];
+
 //    DownloadTaskManager* manger = [DownloadTaskManager shareManager];
 //    [manger setWithBlock:NULL downloadProgress:NULL downloadComplete:NULL];
     [[DownloadTaskManager shareManager]  downloadWithUrl:imageURL];

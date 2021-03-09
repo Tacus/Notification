@@ -18,25 +18,41 @@
 #ifndef DownloadBridge_h
 #define DownloadBridge_h
 
-#import "DownloadBG.h"
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+//
+//typedef void (*DownloadFailure)(int errorScope,const char*msg,int responseCode);
+//typedef void (*DownloadProgress)(int progress);
+//typedef void (*DownloadComplete)(const char* downloadedFilePath);
+//typedef void (*DownloadStart)();
+////
+//typedef void (*UnzipFailure)(const char*msg,int errorCode);
+//typedef void (*UnzipProgress)(int progress);
+//typedef void (*UnzipComplete)();
+//typedef void (*UnzipStart)();
 
-typedef void (*DownloadFailure)(int errorScope,const char*msg,int responseCode);
-typedef void (*DownloadProgress)(int progress);
-typedef void (*DownloadComplete)(const char* downloadedFilePath);
-typedef void (*DownloadStart)();
+//
+typedef void(*DownloadComplete)(const char *url);
+typedef void(*DownloadFailure)(int errorScope,const char* errorMsg,int responseCode);
+typedef void(*DownloadProgress)(int progress);
 
-typedef void (*UnzipFailure)(const char*msg,int errorCode);
-typedef void (*UnzipProgress)(int progress);
-typedef void (*UnzipComplete)();
-typedef void (*UnzipStart)();
+typedef void(*UnzipFailure)(const char* errorMsg,int errorCode);
+typedef void(*UnzipProgress)(int progress);
+typedef void(*UnzipComplete)(void);
 
-void startDownload(const char* url,const char*md5,const char* fileName,int curIndex,int delayInMills);
+void InitDownload(const char* downloadDirPath,const char* unzipDirPath,int totalDownloadCount);
+
+
+void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, DownloadComplete func2);
+
+void RegisterUnzipCallback(UnzipFailure func, UnzipProgress func1, UnzipComplete func2);
+
+void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int currentIndex,int delayInMills);
+void StartUnzipiOSImp(const char* downLoadedFilePath, int currentIndex);
+
 //
 //void startDownload(String url,String md5,String fileName,int curIndex,int delayInMills)
 //{
@@ -46,7 +62,8 @@ void startDownload(const char* url,const char*md5,const char* fileName,int curIn
 //    }
 //}
 //
-void initDownload(const char* downloadDirPath,const char* unzipDirPath,int totalDownloadCount);
+
+
 //{
 //    if(null != mService)
 //    {
@@ -69,7 +86,7 @@ void startUnzip(const char* zipFilePath,int curIndex);
 
 
 
-void setDownloadHandler(DownloadFailure* downloadFailurFun, DownloadProgress* downloadProgress, DownloadComplete* downloadComplete );
+void setDownloadHandler(DownloadFailure* downloadFailurFun, DownloadProgress* downloadProgress, DownloadComplete* downloadComplete);
 void setUnzipHandler(UnzipFailure* unzipFailure,UnzipProgress* unzipProgress,UnzipComplete* unzipComplete);
 //{
 //    if(null != mService) {

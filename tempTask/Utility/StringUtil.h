@@ -11,10 +11,6 @@
 #define IsBlankString(str) [NSString isBlankString:str]
 #import <Foundation/Foundation.h>
 
-@interface NSString (Util)
-- (BOOL)isBlankString:(NSString *)str;
-@end
-
 @interface StringUtil:NSObject
 
 +(NSString*) humanReadableByteCount:(long) bytes;

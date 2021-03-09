@@ -13,9 +13,12 @@
 @interface DownloadTaskManager () <NSURLSessionDelegate, NSURLSessionDownloadDelegate>
 
 
-@property (nonatomic, copy) DownloadFailure downloadFailureBlock;
-@property (nonatomic, copy) DownloadProgress downloadProgressBlock;
-@property (nonatomic, copy) DownloadComplete downloadCompleteBlock;
+//@property (nonatomic, copy) DownloadFailure downloadFailureBlock;
+
+@property NSString* downloadTargetPath;
+@property NSString* unzipTargetPath;
+@property int totalUpdateNum;
+@property id<ProcessHandler>processHandler;
 
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, strong) NSMutableDictionary *downloadTaskDic;
@@ -40,31 +43,51 @@
 }
 
 
-- (instancetype)initWithBlock:(DownloadFailure)downloadFailure
-             downloadProgress:(DownloadProgress)downloadProgress
-             downloadComplete:(DownloadComplete)downloadcomplete
+- (instancetype)init
 {
-    self.downloadCompleteBlock = downloadcomplete;
-    self.downloadFailureBlock = downloadFailure;
-    self.downloadProgressBlock = downloadProgress;
     if (self = [super init]) {
         _currentCount = 0;
         _downloadTaskDic = [NSMutableDictionary dictionary];
         _resumeDataDic = [NSMutableDictionary dictionary];
 
-  
-        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"BackgroundDownloadIdentifier"];
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:[CommonUtil getBundleID]];
       
         configuration.allowsCellularAccess = NO;
         
-       
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         queue.maxConcurrentOperationCount = 1;
         
         
         self.session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:queue];
+//        [self.]
     }
     return self;
+}
+
+
+- (void) InitDownload:(NSString*)downloadDirPath unzipDirPath:(NSString*)unzipDirPath totalDownloadCount:(int) totalDownloadCount
+{
+    self.downloadTargetPath = downloadDirPath;
+    self.unzipTargetPath = unzipDirPath;
+    self.totalUpdateNum = totalDownloadCount;
+}
+
+- (void)StartDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)downloadFileName
+                                     currentIndex:(int)currentIndex delayInMills:(int)delayInMills
+{
+    if (![self checkIsUrlAtString:downloadUrl]) {
+        NSLog(@"无效的下载地址===%@", downloadUrl);
+        return;
+    }
+    
+   
+    //创建NSURLSessionDownloadTask下载任务并启动之
+    [self activeDownloadSessionTaskWithUrl:downloadUrl];
+}
+
+- (void) SetDownloadDelegate:(id<ProcessHandler>)delegate
+{
+    self.processHandler = delegate;
 }
 
 - (void)downloadWithUrl:(NSString *)urlStr {
@@ -97,21 +120,25 @@
 #pragma mark - Private
 //获取downloadTask并激活它,可以从resumeData激活(断点续传),也可以重新下载
 - (void)activeDownloadSessionTaskWithUrl:(NSString *)urlStr {
-    
     NSString *base64Url = [self encode:urlStr];
-    NSLog(@"base64Url:%@",base64Url);
+    
+    if([self.downloadTaskDic.allKeys containsObject:base64Url])
+    {
+        NSLog(@"already exsit base64url:%@-%@",base64Url,self.downloadTaskDic.allKeys);
+        return;
+    }
     dispatch_group_t group = dispatch_group_create();
     dispatch_queue_t groupQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __weak typeof(self) weakSelf = self;
     for (NSString *filePath in [self getResumeDataFilePathArray]) {
         //判断如果沙盒中有文件的resumeData数据,则把它存储到resumeDataDic中,用resumeData开启downloadTask
         NSString *fileName = [[filePath lastPathComponent] stringByDeletingPathExtension];
-        NSLog(@"fileName:%@",filePath);
+       
         if ([fileName isEqualToString:base64Url]) {
             dispatch_group_async(group, groupQueue, ^{
                 NSData *resumeData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:nil];
                 [weakSelf.resumeDataDic setValue:resumeData forKey:base64Url];
-                NSLog(@"resume:%@-%@",filePath,resumeData);
+                NSLog(@"continue download:%@",filePath);
             });
             
             break;
@@ -137,7 +164,6 @@
         downloadTask.taskDescription = urlStr;
         //存储downloadTask对象
         self.downloadTaskDic[base64Url] = downloadTask;
-        
         //启动任务
         [downloadTask resume];
     });
@@ -176,7 +202,9 @@
 - (void)saveDownloadTmpFileWithResumeData:(NSData *)resumeData url:(NSString *)urlStr {
     NSLog(@"保存resume data");
     NSLog(@"%@",[NSThread callStackSymbols]);
+    NSString *base64Url = [self encode:urlStr];
     [resumeData writeToFile:[self getTmpPathWithUrl:urlStr] atomically:YES];
+    [self.downloadTaskDic removeObjectForKey:base64Url];
 }
 
 //删除之前保存的文件的resumeData
@@ -187,9 +215,18 @@
         NSLog(@"resumeData删除失败");
     }
     
+    NSLog(@"removeDownloadTmpFileWithUrl");
     NSString *base64Url = [self encode:urlStr];
     [self.resumeDataDic removeObjectForKey:base64Url];
     [self.downloadTaskDic removeObjectForKey:base64Url];
+}
+
+- (void)tryAddWorkingTask:(NSURLSessionDownloadTask*) downloadTask
+{
+    NSString* url = downloadTask.description;
+    NSString* base64url = [self encode:url];
+    if([self.downloadTaskDic.allKeys containsObject:base64url]) return;
+    self.downloadTaskDic[base64url] = downloadTask;
 }
 
 #pragma mark - NSURLSessionDownloadDelegate
@@ -202,9 +239,13 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     //进度
     
     float progress = 1.0 * totalBytesWritten / totalBytesExpectedToWrite;
-    self.downloadProgressBlock(progress);
+    [self.processHandler downloadProgress:progress];
     NSLog(@"download task description%@,%@",downloadTask.taskDescription,downloadTask);
-    NSLog(@"progress:%f-%d-%d-%d",progress,bytesWritten,totalBytesWritten,totalBytesExpectedToWrite);
+    
+    //因为未知原因可能会有上次未禁止的下载进程继续下载。
+    
+    
+//    NSLog(@"progress:%f-%d-%d-%d",progress,bytesWritten,totalBytesWritten,totalBytesExpectedToWrite);
 }
 
 /**
@@ -217,6 +258,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(nonnull NSURL *)location {
+    NSLog(@"didFinishDownloadingToURL");
     //移动文件到自己想要保存的路径下,location下的文件会被系统自动删除
     NSError *saveError = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -227,12 +269,13 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
     BOOL success = [fileManager moveItemAtPath:location.path toPath:savePath error:&saveError];
     if (success) {
         NSLog(@"文件下载完成,路径为 == %@", savePath);
-        self.downloadCompleteBlock(savePath);
+        [self.processHandler downloadComplete:savePath];
         //删除之前保存的用来断点续传的resumeData
         [self removeDownloadTmpFileWithUrl:downloadTask.taskDescription];
     } else {
         NSLog(@"在转移文件时发生错误 %@", saveError);
     }
+    [self.downloadTaskDic removeObjectForKey:[self encode:downloadTask.taskDescription]];
 }
 
 #pragma mark - NSURLSessionTaskDelegate
@@ -251,6 +294,8 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
 -(void)URLSession:(nonnull NSURLSession *)session
              task:(nonnull NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error {
+    
+    NSLog(@"didCompleteWithError");
     if (error) {
         
         //用户取消下载会回调一个error,
@@ -378,7 +423,5 @@ didCompleteWithError:(nullable NSError *)error {
 - (void)dealloc {
     [self.session invalidateAndCancel];
 }
-
-
 
 @end
