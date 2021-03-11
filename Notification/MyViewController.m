@@ -9,10 +9,6 @@
 //#import "User"
 #import <UserNotifications/UNUserNotificationCenter.h>
 #import "NotificationDemo.h"
-#import "DownloadTaskManager.h"
-
-
-
 
 #pragma mark MyViewController
 @interface MyViewController ()
@@ -64,7 +60,7 @@ static NSString * imageURL2 = @"http://ro.xdcdn.net/res/Develop/iOS/697542_69848
 -(IBAction)PushButtonClick:(id)sender
 {
     NotificationDemo* center = [[NotificationDemo alloc]init];
-    [center pushNotification_IOS_10_Body:@"开始下载"  promptTone:@"xx"  soundName:@"hello" imageName:@"test" movieName:@"ste" Identifier:@"com.xd.ro"];
+    [center pushNotification_IOS_10_Body:@"开始下载" ];
 }
 
 
@@ -81,7 +77,8 @@ static NSString * imageURL2 = @"http://ro.xdcdn.net/res/Develop/iOS/697542_69848
 
 - (IBAction)resume:(id)sender {
     NSLog(@"resume");
-
+    NotificationDemo* center = [[NotificationDemo alloc]init];
+    [center pushNotification_IOS_10_Body:@"开始下载" ];
 //    [[LFDownloadNetwork shareManager] downloadWithUrl:self.filePath progress:^(float progress) {
 //        dispatch_async(dispatch_get_main_queue(), ^{
 //            weakSelf.progressLabel.text = [NSString stringWithFormat:@"%.2f%%", progress];
@@ -94,7 +91,7 @@ static NSString * imageURL2 = @"http://ro.xdcdn.net/res/Develop/iOS/697542_69848
 
 //    DownloadTaskManager* manger = [DownloadTaskManager shareManager];
 //    [manger setWithBlock:NULL downloadProgress:NULL downloadComplete:NULL];
-    [[DownloadTaskManager shareManager]  downloadWithUrl:imageURL];
+//    [[DownloadTaskManager shareManager]  downloadWithUrl:imageURL];
 }
 //
 
@@ -126,7 +123,7 @@ static NSString * imageURL2 = @"http://ro.xdcdn.net/res/Develop/iOS/697542_69848
 {
     NSLog(@"download Complete");
     NotificationDemo* center = [[NotificationDemo alloc]init];
-    [center pushNotification_IOS_10_Body:@"开始下载"  promptTone:@"xx"  soundName:@"hello" imageName:@"test" movieName:@"ste" Identifier:@"com.xd.ro"];
+    [center pushNotification_IOS_10_Body:@"开始下载"];
 }
 
 -(double)getCurrentSysTime

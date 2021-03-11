@@ -15,12 +15,7 @@
 
 -(void)RegistNtfCenter:(UIApplication*)application;
 
--(void)pushNotification_IOS_10_Body:(NSString*)body
-                         promptTone:(NSString*)promptTone
-                          soundName:(NSString*)soundName
-                          imageName:(NSString*)imageName
-                          movieName:(NSString*)movieName
-                         Identifier:(NSString*)identifier;
+-(void)pushNotification_IOS_10_Body:(NSString*)body;
 
 @end
 

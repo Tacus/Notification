@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		160053DA25ECD3F2003CFC46 /* Notification.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 160053D925ECD3F2003CFC46 /* Notification.storyboard */; };
 		1600540825ECDEBD003CFC46 /* MyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1600540725ECDEBC003CFC46 /* MyViewController.m */; };
-		161109B925F723D500CE1F1B /* DownloadFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 161109B825F723D500CE1F1B /* DownloadFramework.framework */; };
 		1694E4CE25EC8DBD007634F1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1694E4CD25EC8DBD007634F1 /* AppDelegate.m */; };
 		1694E4D125EC8DBD007634F1 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1694E4D025EC8DBD007634F1 /* SceneDelegate.m */; };
 		1694E4D925EC8DC0007634F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1694E4D825EC8DC0007634F1 /* Assets.xcassets */; };
@@ -43,7 +42,6 @@
 		160053D925ECD3F2003CFC46 /* Notification.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Notification.storyboard; sourceTree = "<group>"; };
 		1600540625ECDEBC003CFC46 /* MyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyViewController.h; sourceTree = "<group>"; };
 		1600540725ECDEBC003CFC46 /* MyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyViewController.m; sourceTree = "<group>"; };
-		161109B825F723D500CE1F1B /* DownloadFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DownloadFramework.framework; path = Notification/DownloadFramework.framework; sourceTree = "<group>"; };
 		1694E4C925EC8DBD007634F1 /* Notification.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notification.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1694E4CC25EC8DBD007634F1 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1694E4CD25EC8DBD007634F1 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -70,7 +68,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				161109B925F723D500CE1F1B /* DownloadFramework.framework in Frameworks */,
 				1694E52225EC9647007634F1 /* UserNotifications.framework in Frameworks */,
 				1694E52325EC9647007634F1 /* UserNotificationsUI.framework in Frameworks */,
 			);
@@ -155,7 +152,6 @@
 		1694E51F25EC9647007634F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				161109B825F723D500CE1F1B /* DownloadFramework.framework */,
 				1694E52025EC9647007634F1 /* UserNotifications.framework */,
 				1694E52125EC9647007634F1 /* UserNotificationsUI.framework */,
 			);
