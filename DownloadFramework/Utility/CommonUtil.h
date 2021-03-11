@@ -20,5 +20,7 @@
 
 +(NSString*) getAppName;
 
++(NSString*) getDownloadTip;
+
 @end
 #endif /* CommonUtil_h */

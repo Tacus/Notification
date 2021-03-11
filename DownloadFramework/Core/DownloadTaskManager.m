@@ -73,6 +73,8 @@
         configuration.allowsCellularAccess = NO;
         configuration.sessionSendsLaunchEvents = TRUE;
         configuration.shouldUseExtendedBackgroundIdleMode = TRUE;
+        configuration.timeoutIntervalForResource = 600;
+        configuration.timeoutIntervalForRequest = 20;
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         queue.maxConcurrentOperationCount = 1;
         _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:queue];
@@ -159,6 +161,7 @@
                     {
                         double progress = entryNumber*1.0/total;
                         [weakSelf.processHandler unzipProgress:progress*100];
+                        NSLog(@"unzip progress:%f",progress);
                         self.lastTime = currentTime;
                     }
                 }
@@ -177,7 +180,7 @@
                         dispatch_async(dispatch_get_main_queue(), ^{  //需要执行的方法
                            if([self appISBackground])
                            {
-                               [self pushNotification_IOS_10_Body:@"下载完成"];
+                               [self pushNotification_IOS_10_Body:[CommonUtil getDownloadTip]];
                            }
                         });
                        
@@ -390,6 +393,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if(currentTime - self.lastTime > 300)
     {
         float progress = 1.0 * totalBytesWritten / totalBytesExpectedToWrite;
+        NSLog(@"download progress:%f",progress);
         [self.processHandler downloadProgress:progress*100];
         self.lastTime = currentTime;
 //        NSLog(@"download task description%@,%@,%f",downloadTask.taskDescription,downloadTask,progress);
@@ -451,6 +455,10 @@ didCompleteWithError:(nullable NSError *)error {
         else if ([error.userInfo objectForKey:NSURLErrorBackgroundTaskCancelledReasonKey]) {
             errorScope = 8;
         }
+        else
+        {
+            errorScope = error.code;
+        }
         [self saveDownloadTmpFileWithResumeData:[error.userInfo objectForKey:NSURLSessionDownloadTaskResumeData] url:downloadUrl];
    
         NSLog(@"error = %@", error);
@@ -458,13 +466,15 @@ didCompleteWithError:(nullable NSError *)error {
         if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
             responseCode =(int)[(NSHTTPURLResponse *)task.response statusCode];
         }
-//        [self.processHandler downloadFailure:errorScope errorMsg:error.localizedDescription responseCode:responseCode];
+        if(self.started)
+        {
+            [self.downloadTaskDic removeObjectForKey:downloadUrl];
+            [self.processHandler downloadFailure:errorScope errorMsg:error.localizedDescription responseCode:responseCode];
+        }
     }
-
-
+    [self.downloadTaskDic removeObjectForKey:downloadUrl];
     NSString* fileName = [FileUtil getFileNameByUrl:downloadUrl];
     [self.resumeDataDic removeObjectForKey:fileName];
-    [self.downloadTaskDic removeObjectForKey:downloadUrl];
 }
 
 #pragma mark - NSURLSessionDelegate
@@ -631,7 +641,6 @@ didCompleteWithError:(nullable NSError *)error {
        NSLog(@"在转移文件时发生错误 %@", saveError);
     }
 }
-
 
 - (void)dealloc {
     [self.session invalidateAndCancel];
