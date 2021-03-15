@@ -18,6 +18,8 @@
 #import <UserNotifications/UNNotificationRequest.h>
 #import <UserNotifications/UNNotificationTrigger.h>
 #import <UIKit/UIApplication.h>
+
+
 @interface DownloadTaskInfo : NSObject
 @property NSString* downloadUrl;
 @property NSString* md5;
@@ -28,6 +30,9 @@
 @property NSURLSessionDownloadTask* downloadTask;
 @end
 
+static NSInteger lastWriteDeltaData = 0;
+static NSInteger lastWriteDeltaTime = 0;
+static BOOL allDone = NO;
 @implementation DownloadTaskInfo
 
 
@@ -46,8 +51,7 @@
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, strong) NSMutableDictionary *downloadTaskDic;
 @property (nonatomic, strong) NSMutableDictionary *resumeDataDic;
-//@property AsyncTask* task;
-@property double lastTime;
+@property CompleteHandler completeHandler;
 
 @end
 
@@ -70,17 +74,31 @@
     {
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:[CommonUtil getBundleID]];
       
-        configuration.allowsCellularAccess = NO;
-        configuration.sessionSendsLaunchEvents = TRUE;
-        configuration.shouldUseExtendedBackgroundIdleMode = TRUE;
-        configuration.timeoutIntervalForResource = 600;
-        configuration.timeoutIntervalForRequest = 20;
+        configuration.allowsCellularAccess = YES;
+//        configuration.sessionSendsLaunchEvents = TRUE;
+//        configuration.shouldUseExtendedBackgroundIdleMode = TRUE;
+//        configuration.timeoutIntervalForResource = 600;
+//        configuration.timeoutIntervalForRequest = 20;
+//        configuration.discretionary = YES;
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         queue.maxConcurrentOperationCount = 1;
         _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:queue];
-        
+        allDone = NO;
     }
     return _session;
+}
+
+-(void) setCompleteHandler:(CompleteHandler)completeHandler;
+{
+    self.completeHandler = completeHandler;
+}
+
+- (void)initSession
+{
+    if(NULL == self.session)
+    {
+        
+    }
 }
 
 - (instancetype)init
@@ -102,7 +120,7 @@
     self.totalUpdateNum = totalDownloadCount;
     if(self.session)
     {
-        NSLog(@"inti session");
+        NSLog(@"init session");
     }
 }
 
@@ -150,6 +168,7 @@
 
 - (void)StartUnzip:(NSString*)zipFilePath currentIndex:(int)currentIndex
 {
+    allDone = NO;
     __weak typeof(self) weakSelf = self;
     dispatch_queue_t groupQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(groupQueue,^{
@@ -157,12 +176,14 @@
             progressHandler:^(NSString *entry, unz_file_info zipInfo, long entryNumber, long total)
                 {
                     NSInteger currentTime = [self getCurrentSysTime];
-                    if(currentTime - self.lastTime > 100)
+                    if(currentTime - lastWriteDeltaTime > 100)
                     {
                         double progress = entryNumber*1.0/total;
                         [weakSelf.processHandler unzipProgress:progress*100];
+                     
                         NSLog(@"unzip progress:%f",progress);
-                        self.lastTime = currentTime;
+                        lastWriteDeltaTime = currentTime;
+                        lastWriteDeltaData = entryNumber;
                     }
                 }
             completionHandler:^(NSString *path, BOOL succeeded, NSError * _Nullable error)
@@ -176,6 +197,7 @@
                     [weakSelf.processHandler unzipComplete];
                     if(currentIndex == self.totalUpdateNum)
                     {
+                        allDone = YES;
                         [self allProcessDone];
                         dispatch_async(dispatch_get_main_queue(), ^{  //需要执行的方法
                            if([self appISBackground])
@@ -248,7 +270,7 @@
             dispatch_group_async(group, groupQueue, ^{
                 NSData *resumeData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:nil];
                 [weakSelf.resumeDataDic setValue:resumeData forKey:fileName];
-                NSLog(@"continue download:%@",filePath);
+                
             });
             
             break;
@@ -260,11 +282,11 @@
 
         if ([self.resumeDataDic.allKeys containsObject:fileName]) {
             downloadTask = [self.session downloadTaskWithResumeData:self.resumeDataDic[fileName]];
+            NSLog(@"continue download:%@",urlStr);
         } else {
             downloadTask = [self.session downloadTaskWithURL:[NSURL URLWithString:urlStr]];
+            NSLog(@"new download:%@",urlStr);
         }
-        
-        NSLog(@"downloadTask = %@", downloadTask);
         
         downloadTask.taskDescription = urlStr;
         if([self.downloadTaskDic.allKeys containsObject:urlStr])
@@ -280,6 +302,7 @@
         }
         
         [downloadTask resume];
+        NSLog(@"downloadTask = %@", downloadTask);
     });
 }
 
@@ -299,17 +322,12 @@
     NSURLSessionDownloadTask *downloadTask = info.downloadTask;
     
     [downloadTask cancelByProducingResumeData:^(NSData * _Nullable resumeData) {
-        
-
         self.resumeDataDic[fileName] = resumeData;
-
-        
         if (!isRemove) {
             [self saveDownloadTmpFileWithResumeData:resumeData url:urlStr];
         } else {
             [self removeDownloadTmpFileWithUrl:urlStr];
         }
-        
 #warning 开启等待下载的任务
     }];
 }
@@ -352,7 +370,6 @@
     }
 }
 
-
 -(void)pushNotification_IOS_10_Body:(NSString *)body
 {
     UNUserNotificationCenter * center  = [UNUserNotificationCenter currentNotificationCenter];
@@ -390,12 +407,18 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         return;
     };
     NSInteger currentTime = [self getCurrentSysTime];
-    if(currentTime - self.lastTime > 300)
+    NSInteger deltaTime = currentTime - lastWriteDeltaTime;
+    if( deltaTime > 300)
     {
         float progress = 1.0 * totalBytesWritten / totalBytesExpectedToWrite;
-        NSLog(@"download progress:%f",progress);
+        long long deltaData = totalBytesWritten - lastWriteDeltaData;
+        NSInteger speed = deltaData * 1000.0 /deltaTime;
+        NSString* speedStr = [StringUtil humanReadableByteCount:speed];
+        
+        NSLog(@"download progress:%f,speed:%@",progress,speedStr);
         [self.processHandler downloadProgress:progress*100];
-        self.lastTime = currentTime;
+        lastWriteDeltaTime = currentTime;
+        lastWriteDeltaData = totalBytesWritten;
 //        NSLog(@"download task description%@,%@,%f",downloadTask.taskDescription,downloadTask,progress);
     }
 }
@@ -444,7 +467,6 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
 -(void)URLSession:(nonnull NSURLSession *)session
              task:(nonnull NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error {
-    
     NSLog(@"didCompleteWithError");
     NSString* downloadUrl = task.taskDescription;
     if (error) {
@@ -480,24 +502,21 @@ didCompleteWithError:(nullable NSError *)error {
 #pragma mark - NSURLSessionDelegate
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-    NSLog(@"所有任务下载完成后调用");
+    NSLog(@"所有任务下载完成后调用,URLSessionDidFinishEventsForBackgroundURLSession");
+    //TODO invovl complete handler;
+    if(NULL != self.completeHandler && allDone)
+    {
+        self.completeHandler();
+    }
 }
 
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
-                                 didReceiveResponse:(NSURLResponse *)response
-                                  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
+/* The last message a session receives.  A session will only become
+ * invalid because of a systemic error or when it has been
+ * explicitly invalidated, in which case the error parameter will be nil.
+ */
+- (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(nullable NSError *)error
 {
-    NSString* downloadUrl = dataTask.taskDescription;
-    if(NULL == response)
-    {
-
-    }
-    int responseCode = 0;
-    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-        responseCode =(int)[(NSHTTPURLResponse *)response statusCode];
-    }
-    NSLog(@"didReceiveResponse:%d-downloadUrl:%@",responseCode,downloadUrl);
-    completionHandler(NSURLSessionResponseAllow);
+    NSLog(@"didBecomeInvalidWithError");
 }
 
 

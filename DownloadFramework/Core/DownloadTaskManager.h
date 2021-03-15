@@ -12,17 +12,15 @@
 #import "DownloadBridge.h"
 #import "ProcessHandler.h"
 
-
+typedef  void (^CompleteHandler)(void);
 @interface DownloadTaskManager : NSObject
 @property (nonatomic, assign) NSInteger maxConcurrentCount;
 
 + (instancetype)shareManager;
 
 
-
+- (void)initSession;
 - (instancetype)init;
-
--(void)initWithDownloadDirPath:(NSString*)downloadTargetPath unzipTargetPath:(NSString*)unzipTargetPath totalUpdateNum:(int)totalUpdateNum;
 
 /**< 开始下载*/
 - (void)downloadWithUrl:(NSString *)urlStr;
@@ -43,6 +41,7 @@
 
 - (void) InitDownload:(NSString*)downloadDirPath unzipDirPath:(NSString*)unzipDirPath totalDownloadCount:(int) totalDownloadCount;
 - (void) SetDownloadDelegate:(id<ProcessHandler>)delegate;
+-(void) setCompleteHandler:(CompleteHandler)completeHandler;
 @end
 
 #endif /* DownloadTaskManager_h */

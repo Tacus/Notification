@@ -19,7 +19,7 @@
         return [NSString stringWithFormat:@"%lu",bytes];
 //        return [bytes + @"B"];
     int exp = (int) (log(bytes) / log(unit));
-    NSString* ch = [@"KMGTPE" substringWithRange:NSMakeRange(exp, 1)];
+    NSString* ch = [@"KMGTPE" substringWithRange:NSMakeRange(exp - 1, 1)];
     return [NSString stringWithFormat:@"%.1f %@B/s", bytes / pow(unit, exp), ch];
 }
 
