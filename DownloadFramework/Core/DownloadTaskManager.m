@@ -26,7 +26,6 @@
 @property NSString* fileName;
 @property NSString* downloadFilePath;
 
-
 @property NSURLSessionDownloadTask* downloadTask;
 @end
 
@@ -170,6 +169,10 @@ static BOOL allDone = NO;
 {
     allDone = NO;
     __weak typeof(self) weakSelf = self;
+    UIBackgroundTaskIdentifier backgroundUpdateTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        
+    }];
+  
     dispatch_queue_t groupQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(groupQueue,^{
         [SSZipArchive unzipFileAtPath:zipFilePath toDestination:self.unzipTargetPath
@@ -188,12 +191,14 @@ static BOOL allDone = NO;
                 }
             completionHandler:^(NSString *path, BOOL succeeded, NSError * _Nullable error)
                 {
+            [[UIApplication sharedApplication] endBackgroundTask:backgroundUpdateTask];
                     if(NULL!= error)
                     {
                         [weakSelf.processHandler unzipFailure:error.localizedDescription responseCode:(int)error.code];
                         return;
                     }
-                    
+            
+           
                     [weakSelf.processHandler unzipComplete];
                     if(currentIndex == self.totalUpdateNum)
                     {
@@ -238,6 +243,21 @@ static BOOL allDone = NO;
     }
     
     [self activeDownloadSessionTaskWithUrl:urlStr];
+}
+
+-(void) resumeDownload
+{
+    if(NULL != _session)
+    {
+        for (NSString* key in self.downloadTaskDic) {
+            DownloadTaskInfo* info = [self.downloadTaskDic objectForKey:key];
+            if(NULL != info.downloadTask)
+            {
+                [info.downloadTask resume];
+                break;
+            }
+        }
+    }
 }
 
 #pragma mark - Public

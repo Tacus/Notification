@@ -42,6 +42,7 @@ typedef  void (^CompleteHandler)(void);
 - (void) InitDownload:(NSString*)downloadDirPath unzipDirPath:(NSString*)unzipDirPath totalDownloadCount:(int) totalDownloadCount;
 - (void) SetDownloadDelegate:(id<ProcessHandler>)delegate;
 -(void) setCompleteHandler:(CompleteHandler)completeHandler;
+-(void) resumeDownload;
 @end
 
 #endif /* DownloadTaskManager_h */
