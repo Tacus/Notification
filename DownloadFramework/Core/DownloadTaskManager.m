@@ -680,6 +680,7 @@ didCompleteWithError:(nullable NSError *)error {
        NSLog(@"在转移文件时发生错误 %@", saveError);
     }
 }
+//TODO test
 
 - (void)dealloc {
     [self.session invalidateAndCancel];
