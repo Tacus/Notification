@@ -30,11 +30,25 @@
 @property NSURLSessionDownloadTask* downloadTask;
 @property NSString* errorMsg;
 @property NSUInteger tryCount;
+@property NSUInteger unzipedCount;
+@property NSUInteger unzipTotalCount;
 @end
 
-static NSInteger lastWriteDeltaData = 0;
-static NSInteger lastWriteDeltaTime = 0;
+@interface UnzipInfo : NSObject
+@property NSString* unzipFilePath;
+@property NSUInteger unzipedCount;
+@property NSUInteger unzipTotalCount;
+@end
+
+static NSUInteger lastWriteDeltaData = 0;
+static NSUInteger lastWriteDeltaTime = 0;
+static NSUInteger lastUnzipDeltaTime = 0;
 @implementation DownloadTaskInfo
+
+
+@end
+
+@implementation UnzipInfo
 
 
 @end
@@ -177,7 +191,7 @@ static NSInteger lastWriteDeltaTime = 0;
                                      currentIndex:(int)currentIndex delayInMills:(int)delayInMills
 {
     NSLog(@"AddDownload:md5:fileName:currentIndex:delayInMills:%@",downloadUrl);
-    self.started = true;
+    
     if (![self checkIsUrlAtString:downloadUrl]) {
         NSLog(@"无效的下载地址===%@", downloadUrl);
         return;
@@ -188,7 +202,6 @@ static NSInteger lastWriteDeltaTime = 0;
     if(ret)
     {
         int count = (int)(self.downloadTaskDict.count + self.downloadFailedDict.count);
-//        TODO
         [self.processHandler downloadComplete:localFilePath leftDownload:count];
         [self StartUnzip:localFilePath currentIndex:0];
         NSLog(@"已经下载完成:%@", localFilePath);
@@ -222,6 +235,7 @@ static NSInteger lastWriteDeltaTime = 0;
 
 -(void)Start
 {
+    self.started = true;
     for (NSString* key in self.downloadTaskDict)
     {
         DownloadTaskInfo* info = [self.downloadTaskDict objectForKey:key];
@@ -248,17 +262,39 @@ static NSInteger lastWriteDeltaTime = 0;
 
 
 #pragma mark - unzip
--(void)unzipProgress:(NSString *)entry zipInfo:(unz_file_info) zipInfo entryNumber:(long) entryNumber total:(long) total
-{
-    NSInteger currentTime = [self getCurrentSysTime];
-    if(currentTime - lastWriteDeltaTime > 100)
-    {
-        double progress = entryNumber*1.0/total;
-        [self.processHandler unzipProgress:progress*100];
 
-        NSLog(@"unzip progress:%f",progress);
-//                        lastWriteDeltaTime = currentTime;
-//                        lastWriteDeltaData = entryNumber;
+-(float)CalUnzipProgress:(NSString*) zipFilePath
+         totalFileWriten:(long)totalFileWriten
+         totalFileExpectedWriten:(long)totalFileExpectedWriten
+{
+    if([self.unzipingDict.allKeys containsObject:zipFilePath])
+    {
+        UnzipInfo* info = [self.unzipingDict objectForKey:zipFilePath];
+        info.unzipedCount = totalFileWriten;
+        info.unzipTotalCount = totalFileExpectedWriten;
+    }
+    long writed = 0;
+    long total = 0;
+    
+    for (NSString* key in self.unzipingDict)
+    {
+        UnzipInfo* info = [self.unzipingDict objectForKey:key];
+        writed += info.unzipedCount;
+        total += info.unzipTotalCount;
+    }
+    
+    return 1.0*writed/total;
+}
+
+-(void)unzipProgress:(NSString *)zipFilePath entryNumber:(long) entryNumber total:(long) total
+{
+    NSUInteger currentTime = [self getCurrentSysTime];
+    if(currentTime - lastUnzipDeltaTime > 300)
+    {
+        double progress = [self CalUnzipProgress:zipFilePath totalFileWriten:entryNumber totalFileExpectedWriten:total];
+        [self.processHandler unzipProgress:progress*100];
+        lastUnzipDeltaTime = currentTime;
+        NSLog(@"unzip path:%@,progress:%f",zipFilePath,progress);
     }
 }
 
@@ -276,7 +312,6 @@ static NSInteger lastWriteDeltaTime = 0;
     if(0 == self.unzipingDict.count && 0 == self.downloadTaskDict.count)
     {
         NSLog(@"下载列表，解压列表为空！且终失败列表大小：%lu",((unsigned long)self.downloadFailedDict.count));
-        
     }
 }
 
@@ -287,19 +322,26 @@ static NSInteger lastWriteDeltaTime = 0;
         return;
     }
         
-    self.unzipingDict[zipFilePath] = @"1";
+    self.unzipingDict[zipFilePath] = [self GetUnzipInfo:zipFilePath];
     __weak typeof(self) weakSelf = self;
     dispatch_queue_t groupQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(groupQueue,^{
         [SSZipArchive unzipFileAtPath:zipFilePath toDestination:self.unzipTargetPath
                       progressHandler:^(NSString *entry, unz_file_info zipInfo, long entryNumber, long total){
-            [weakSelf unzipProgress:entry zipInfo:zipInfo entryNumber:entryNumber total:total];
+            [weakSelf unzipProgress:zipFilePath entryNumber:entryNumber total:total];
         }
                     completionHandler:^(NSString *path, BOOL succeeded, NSError * _Nullable error){
             [weakSelf unzipComplete:path succeeded:succeeded error:error];
             
         }];
     });
+}
+
+-(UnzipInfo*)GetUnzipInfo:(NSString*)unzipFilePath
+{
+    UnzipInfo* info = [[UnzipInfo alloc] init];
+    info.unzipFilePath = unzipFilePath;
+    return info;
 }
 
 #pragma mark - Private
@@ -785,8 +827,6 @@ didCompleteWithError:(nullable NSError *)error {
     }
 }
 
-
-
 - (NSString *)getTmpPathWithUrl:(NSString *)urlStr {
     
     NSString *fileName = [FileUtil getFileNameByUrl:urlStr];
@@ -911,10 +951,10 @@ didCompleteWithError:(nullable NSError *)error {
     }
 }
 
--(NSInteger)getCurrentSysTime
+-(NSUInteger)getCurrentSysTime
 {
     NSDate* dat = [NSDate date];
-    NSInteger interval = [dat timeIntervalSince1970]*1000;
+    NSUInteger interval = [dat timeIntervalSince1970]*1000;
     return interval;
 }
 
