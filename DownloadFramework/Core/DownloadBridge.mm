@@ -38,11 +38,11 @@ UnzipComplete unzipCompleteDelegate = NULL;
     }
 }
 
--(void) downloadComplete:(NSString*)downloadedFilePath
+-(void) downloadComplete:(NSString*)downloadedFilePath leftDownload:(int)leftDownload
 {
     if(NULL != downloadCompleteDelegate)
     {
-        downloadCompleteDelegate([downloadedFilePath UTF8String]);
+        downloadCompleteDelegate([downloadedFilePath UTF8String],leftDownload);
     }
 }
 
@@ -78,18 +78,37 @@ static DownloadBridge *__delegate = nil;
 
 void InitDownload(const char*downloadDirPath,const char*unzipDirPath,int totalDownloadCount)
 {
-    NSString* downloadPath = [NSString stringWithUTF8String:downloadDirPath];
-    NSString* unzipPath = [NSString stringWithUTF8String:unzipDirPath];
-    [[DownloadTaskManager shareManager] InitDownload:downloadPath unzipDirPath:unzipPath totalDownloadCount:totalDownloadCount];
     if(!__delegate)
     {
+        NSString* downloadPath = [NSString stringWithUTF8String:downloadDirPath];
+        NSString* unzipPath = [NSString stringWithUTF8String:unzipDirPath];
         __delegate = [[DownloadBridge alloc] init];
+        [[DownloadTaskManager shareManager] SetDownloadDelegate:__delegate];
+        [[DownloadTaskManager shareManager] InitDownload:downloadPath unzipDirPath:unzipPath totalDownloadCount:totalDownloadCount];
     }
-    
-    [[DownloadTaskManager shareManager] SetDownloadDelegate:__delegate];
 }
 
 void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int currentIndex,int delayInMills)
+{
+//    NSString* downloadUrl = [NSString stringWithUTF8String:url];
+//    NSString* downloadFileMd5 = NULL;
+//    NSString* downloadFileName = NULL;
+//    if(fileName != NULL)
+//    {
+//        downloadFileName = [NSString stringWithUTF8String:fileName];
+//    }
+//
+//    if(md5 != NULL)
+//    {
+//        downloadFileMd5 = [NSString stringWithUTF8String:md5];
+//    }
+//
+//    [[DownloadTaskManager shareManager] StartDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
+//                                         currentIndex:currentIndex delayInMills:delayInMills];
+    AddDownload(url,md5,fileName,currentIndex,delayInMills);
+}
+
+void AddDownload(const char* url,const char*md5,const char* fileName,int currentIndex,int delayInMills)
 {
     NSString* downloadUrl = [NSString stringWithUTF8String:url];
     NSString* downloadFileMd5 = NULL;
@@ -104,9 +123,14 @@ void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int
         downloadFileMd5 = [NSString stringWithUTF8String:md5];
     }
 
-    [[DownloadTaskManager shareManager] StartDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
+    [[DownloadTaskManager shareManager] AddDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
                                          currentIndex:currentIndex delayInMills:delayInMills];
+}
 
+void StartiOSImp()
+{
+    NSLog(@"StartiOSImp");
+    [[DownloadTaskManager shareManager] Start];
 }
 
 void StartUnzipiOSImp(const char* downLoadedFilePath, int currentIndex)

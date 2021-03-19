@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(void) downloadProgress:(int)progress;
 
 @required
--(void) downloadComplete:(NSString*)downloadedFilePath;
+-(void) downloadComplete:(NSString*)downloadedFilePath leftDownload:(int)done;
 
 //-(void) downloadHandleStart:(AsyncTask*) task;
 

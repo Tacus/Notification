@@ -35,7 +35,7 @@ extern "C"
 //typedef void (*UnzipStart)();
 
 //
-typedef void(*DownloadComplete)(const char *url);
+typedef void(*DownloadComplete)(const char *url,int leftDownload);
 typedef void(*DownloadFailure)(int errorScope,const char* errorMsg,int responseCode);
 typedef void(*DownloadProgress)(int progress);
 
@@ -51,97 +51,9 @@ void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, Down
 void RegisterUnzipCallback(UnzipFailure func, UnzipProgress func1, UnzipComplete func2);
 
 void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int currentIndex,int delayInMills);
+void AddDownload(const char* url,const char*md5,const char* fileName,int currentIndex,int delayInMills);
 void StartUnzipiOSImp(const char* downLoadedFilePath, int currentIndex);
-
-//
-//void startDownload(String url,String md5,String fileName,int curIndex,int delayInMills)
-//{
-//    if(null != mService)
-//    {
-//        mService.startDownload(url,md5,fileName,curIndex,delayInMills);
-//    }
-//}
-//
-
-
-//{
-//    if(null != mService)
-//    {
-//        mService.initDownload(downloadDirPath,unzipDirPath,totalDownloadCount);
-//    }
-//    else
-//    {
-//        Log.e(TAG,"regist service failure!");
-//    }
-//}
-//
-void startUnzip(const char* zipFilePath,int curIndex);
-//{
-//    if(null != mService)
-//    {
-//        mService.startUnzip(zipFilePath,curIndex);
-//    }
-//}
-//
-
-
-
-void setDownloadHandler(DownloadFailure* downloadFailurFun, DownloadProgress* downloadProgress, DownloadComplete* downloadComplete);
-void setUnzipHandler(UnzipFailure* unzipFailure,UnzipProgress* unzipProgress,UnzipComplete* unzipComplete);
-//{
-//    if(null != mService) {
-//        mService.setDownloadHandler(downloadhandler);
-//        mService.setUnzipHandler(unzipHandler);
-//    }
-//}
-//
-void stopService();
-//{
-//    Log.d(TAG,"stopService");
-//    if(mBound)
-//    {
-//        unbindService(sc);
-//        mBound = false;
-//    }
-//    mService = null;
-//    sc = null;
-//}
-//
-//private boolean mBound = false;
-//private ServiceConnection sc;
-//private DownloadService mService;
-//
-//void initServer();
-//{
-//    if(sc == null)
-//    {
-//        sc = new ServiceConnection() {
-//            @Override
-//            public void onServiceConnected(ComponentName name, IBinder service) {
-//                Log.d(TAG,"onServiceConnected");
-//                DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
-//                mService = binder.getService();
-//                mBound = true;
-//            }
-//
-//            @Override
-//            public void onServiceDisconnected(ComponentName name) {
-//                Log.d(TAG,"onServiceDisconnected");
-//                mBound = false;
-//                mService = null;
-//            }
-//        };
-//    }
-//}
-void startService();
-//{
-//    initServer();
-//    Intent intent = new Intent(this, DownloadService.class);
-//    bindService(intent,sc, Context.BIND_AUTO_CREATE);
-//}
-
-
-
+void StartiOSImp(void);
 
 #ifdef __cplusplus
 }

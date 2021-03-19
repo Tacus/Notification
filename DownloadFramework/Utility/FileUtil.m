@@ -6,9 +6,6 @@
 //
 
 #import "FileUtil.h"
-static const char* TAG = "FileUtil";
-
-
 @implementation FileUtil
 #define CC_MD5_DIGEST_LENGTH 16
 

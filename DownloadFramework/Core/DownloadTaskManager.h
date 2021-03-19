@@ -14,12 +14,13 @@
 
 typedef  void (^CompleteHandler)(void);
 @interface DownloadTaskManager : NSObject
+@property CompleteHandler completeHandler;
 @property (nonatomic, assign) NSInteger maxConcurrentCount;
 
 + (instancetype)shareManager;
 
 
-- (void)initSession;
+- (void)resumeDownload;
 - (instancetype)init;
 
 /**< 开始下载*/
@@ -36,13 +37,14 @@ typedef  void (^CompleteHandler)(void);
 
 - (void)StartDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)downloadFileName
                                      currentIndex:(int)currentIndex delayInMills:(int)delayInMills;
+- (void)AddDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)fileName
+         currentIndex:(int)currentIndex delayInMills:(int)delayInMills;
 
 - (void)StartUnzip:(NSString*)zipFilePath currentIndex:(int)currentIndex;
-
+-(void)Start;
 - (void) InitDownload:(NSString*)downloadDirPath unzipDirPath:(NSString*)unzipDirPath totalDownloadCount:(int) totalDownloadCount;
 - (void) SetDownloadDelegate:(id<ProcessHandler>)delegate;
 -(void) setCompleteHandler:(CompleteHandler)completeHandler;
--(void) resumeDownload;
 @end
 
 #endif /* DownloadTaskManager_h */
