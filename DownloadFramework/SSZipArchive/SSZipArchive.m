@@ -19,6 +19,8 @@ NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
 int _zipOpenEntry(zipFile entry, NSString *name, const zip_fileinfo *zipfi, int level, NSString *password, BOOL aes);
 BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
 
+//static int writeIndex = 0;
+
 #ifndef API_AVAILABLE
 // Xcode 7- compatibility
 #define API_AVAILABLE(...)
@@ -280,6 +282,7 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
     return [self unzipFileAtPath:path toDestination:destination preserveAttributes:preserveAttributes overwrite:overwrite nestedZipLevel:0 password:password error:error delegate:delegate progressHandler:progressHandler completionHandler:completionHandler];
 }
 
+
 + (BOOL)unzipFileAtPath:(NSString *)path
           toDestination:(NSString *)destination
      preserveAttributes:(BOOL)preserveAttributes
@@ -505,6 +508,13 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
                                     break;
                                 }
                             }
+//                            if (10 >= writeIndex++)
+//                            {
+//                                writeIndex = 0;
+////                                sleep(1);
+//                            }
+                        
+                            
                         } else {
                             break;
                         }

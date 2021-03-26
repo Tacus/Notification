@@ -8,7 +8,13 @@
 #include "DownloadBridge.h"
 #import "DownloadTaskManager.h"
 #import "ProcessHandler.h"
-
+#import <Foundation/Foundation.h>
+#import <UIKit/UIApplication.h>
+#import "CommonUtil.h"
+#import <Foundation/NSNotification.h>
+#import <NotificationCenter/NotificationCenter.h>
+#import <UserNotifications/UserNotifications.h>
+#import <UserNotifications/UNNotification.h>
 @interface DownloadBridge : NSObject<ProcessHandler>
     
 @end
@@ -16,57 +22,76 @@
 DownloadComplete downloadCompleteDelegate = NULL;
 DownloadFailure downloadFailureDelegate = NULL;
 DownloadProgress downloadProgressDelegate = NULL;
+DownloadDone downloadDoneDelegate = NULL;
 UnzipFailure unzipFailureDelegate = NULL;
 UnzipProgress unzipProgressDelegate = NULL;
 UnzipComplete unzipCompleteDelegate = NULL;
+UnzipDone unzipDoneDelegate = NULL;
+IsNtfAuthDisable ntfAuthDisableDelegate = NULL;
 
 @implementation DownloadBridge
    
--(void) downloadFailure:(int) errorScope errorMsg:(NSString*) msg responseCode:(int) responseCode
+-(void) downloadFailure:(NSString*)downloadUrl errorScope:(int) errorScope errorMsg:(NSString*) msg responseCode:(int) responseCode
 {
     if(NULL != downloadFailureDelegate)
     {
-        downloadFailureDelegate(errorScope,[msg UTF8String],responseCode);
+        downloadFailureDelegate([downloadUrl UTF8String], errorScope,[msg UTF8String],responseCode);
     }
 }
 
--(void) downloadProgress:(int)progress
+-(void) downloadProgress:(NSString*)downloadUrl progress:(int)progress
 {
     if(NULL != downloadProgressDelegate)
     {
-        downloadProgressDelegate(progress);
+        downloadProgressDelegate([downloadUrl UTF8String],progress);
     }
 }
 
--(void) downloadComplete:(NSString*)downloadedFilePath leftDownload:(int)leftDownload
+-(void) downloadComplete:(NSString*)downloadUrl downloadedFilePath:(NSString*)downloadedFilePath
 {
     if(NULL != downloadCompleteDelegate)
     {
-        downloadCompleteDelegate([downloadedFilePath UTF8String],leftDownload);
+        downloadCompleteDelegate([downloadUrl UTF8String], [downloadedFilePath UTF8String]);
     }
 }
 
--(void) unzipFailure:(NSString*) msg responseCode:(int) responseCode
+-(void) downloadDone:(NSString*)errorMsg
+{
+    if(NULL != downloadDoneDelegate)
+    {
+        downloadDoneDelegate([errorMsg UTF8String]);
+    }
+}
+
+-(void) unzipFailure:(NSString*)zipFilePath errorMsg:(NSString*) errorMsg errorScope:(int) errorScope
 {
     if(NULL != unzipFailureDelegate)
     {
-        unzipFailureDelegate([msg UTF8String],responseCode);
+        unzipFailureDelegate([zipFilePath UTF8String], [errorMsg UTF8String],errorScope);
     }
 }
 
--(void) unzipProgress:(int)progress
+-(void) unzipProgress:(NSString*)zipFilePath progress:(int)progress
 {
     if(NULL != unzipProgressDelegate)
     {
-        unzipProgressDelegate(progress);
+        unzipProgressDelegate([zipFilePath UTF8String], progress);
     }
 }
 
--(void) unzipComplete
+-(void) unzipComplete:(NSString*)zipFilePath
 {
     if(NULL != unzipCompleteDelegate)
     {
-        unzipCompleteDelegate();
+        unzipCompleteDelegate([zipFilePath UTF8String]);
+    }
+}
+
+-(void) unzipDone
+{
+    if(NULL != unzipDoneDelegate)
+    {
+        unzipDoneDelegate();
     }
 }
 
@@ -88,7 +113,7 @@ void InitDownload(const char*downloadDirPath,const char*unzipDirPath,int totalDo
     }
 }
 
-void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int currentIndex,int delayInMills)
+void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills)
 {
 //    NSString* downloadUrl = [NSString stringWithUTF8String:url];
 //    NSString* downloadFileMd5 = NULL;
@@ -105,10 +130,10 @@ void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int
 //
 //    [[DownloadTaskManager shareManager] StartDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
 //                                         currentIndex:currentIndex delayInMills:delayInMills];
-    AddDownload(url,md5,fileName,currentIndex,delayInMills);
+    AddDownload(url,md5,fileName,fileSize,delayInMills);
 }
 
-void AddDownload(const char* url,const char*md5,const char* fileName,int currentIndex,int delayInMills)
+void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills)
 {
     NSString* downloadUrl = [NSString stringWithUTF8String:url];
     NSString* downloadFileMd5 = NULL;
@@ -124,7 +149,7 @@ void AddDownload(const char* url,const char*md5,const char* fileName,int current
     }
 
     [[DownloadTaskManager shareManager] AddDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
-                                         currentIndex:currentIndex delayInMills:delayInMills];
+                                           fileSize:fileSize delayInMills:delayInMills];
 }
 
 void StartiOSImp()
@@ -133,22 +158,61 @@ void StartiOSImp()
     [[DownloadTaskManager shareManager] Start];
 }
 
-void StartUnzipiOSImp(const char* downLoadedFilePath, int currentIndex)
+void StartUnzipiOSImp(const char* downLoadedFilePath)
 {
     NSLog(@"StartUnzipiOSImp");
-    [[DownloadTaskManager shareManager] StartUnzip:[NSString stringWithUTF8String:downLoadedFilePath] currentIndex:currentIndex];
+    [[DownloadTaskManager shareManager] StartUnzip:[NSString stringWithUTF8String:downLoadedFilePath]];
 }
 
-void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, DownloadComplete func2)
+void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, DownloadComplete func2,DownloadDone func3)
 {
     downloadCompleteDelegate = func2;
     downloadFailureDelegate = func;
     downloadProgressDelegate = func1;
+    downloadDoneDelegate = func3;
 }
 
-void RegisterUnzipCallback(UnzipFailure func, UnzipProgress func1, UnzipComplete func2)
+void RegisterUnzipCallback(UnzipFailure func, UnzipProgress func1, UnzipComplete func2,UnzipDone func3)
 {
     unzipFailureDelegate = func;
     unzipProgressDelegate = func1;
     unzipCompleteDelegate = func2;
+    unzipDoneDelegate = func3;
+}
+
+void ReDownloadiOSImp(void)
+{
+    NSLog(@"ReDownloadiOSImp");
+    [[DownloadTaskManager shareManager] RetryDownload];
+}
+
+void isNtfEnableIOSImp(IsNtfAuthDisable func)
+{
+    NSLog(@"isNtfEnableIOSImp%@",[NSThread currentThread]);
+    ntfAuthDisableDelegate = func;
+//    NSNotificationCenter* center = [NSNotificationCenter curren]
+    UNUserNotificationCenter * center  = [UNUserNotificationCenter currentNotificationCenter];
+    [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings)
+     {
+        NSLog(@"getNotificationSettingsWithCompletionHandler%@",[NSThread currentThread]);
+        NSLog(@"authorizationStatus%ld",(long)settings.authorizationStatus);
+        NSLog(@"alertSetting%ld",(long)settings.alertSetting);
+        NSLog(@"soundSetting%ld",(long)settings.lockScreenSetting);
+        NSLog(@"soundSetting%ld",(long)settings.soundSetting);
+        NSLog(@"badgeSetting%ld",(long)settings.badgeSetting);
+        NSLog(@"notificationCenterSetting%ld",(long)settings.notificationCenterSetting);
+        ntfAuthDisableDelegate(settings.authorizationStatus == UNAuthorizationStatusAuthorized);
+    }];
+}
+
+void goToNtfSettingViewIOSImp(void)
+{
+    NSLog(@"goToNtfSettingViewIOSImp");
+    NSString* urlStr = [UIApplicationOpenSettingsURLString stringByAppendingString:[CommonUtil getBundleID]];
+    NSURL* url = [NSURL URLWithString:urlStr];
+    if([[UIApplication sharedApplication]canOpenURL:url])
+    {
+        UIApplication *application = [UIApplication sharedApplication];
+        [application openURL:url options:@{} completionHandler:nil];
+    }
 }

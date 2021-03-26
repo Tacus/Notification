@@ -12,24 +12,30 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol ProcessHandler <NSObject>
 
 @required
--(void) unzipFailure:(NSString*) msg responseCode:(int) responseCode;
+-(void) unzipFailure:(NSString*)zipFilePath errorMsg:(NSString*) msg errorScope:(int) errorScope;
 
 @required
--(void) unzipProgress:(int)progress;
+-(void) unzipProgress:(NSString*)zipFilePath progress:(int)progress;
 
 @required
--(void) unzipComplete;
+-(void) unzipComplete:(NSString*)zipFilePath;
+
+@required
+-(void) unzipDone;
 
 //-(void) unzipHandleStart:(AsyncTask*) task;
 
 @required
--(void) downloadFailure:(int) errorScope errorMsg:(NSString*) msg responseCode:(int) responseCode;
+-(void) downloadFailure:(NSString*)url errorScope:(int) errorScope errorMsg:(NSString*) msg responseCode:(int) responseCode;
 
 @required
--(void) downloadProgress:(int)progress;
+-(void) downloadProgress:(NSString*)url progress:(int)progress;
 
 @required
--(void) downloadComplete:(NSString*)downloadedFilePath leftDownload:(int)done;
+-(void) downloadComplete:(NSString*)url downloadedFilePath:(NSString*)downloadedFilePath;
+
+@required
+-(void) downloadDone:(NSString*)errorMsg;
 
 //-(void) downloadHandleStart:(AsyncTask*) task;
 
