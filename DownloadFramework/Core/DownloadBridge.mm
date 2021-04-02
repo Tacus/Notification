@@ -113,27 +113,12 @@ void InitDownload(const char*downloadDirPath,const char*unzipDirPath,int totalDo
     }
 }
 
-void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills)
+void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills,int priority)
 {
-//    NSString* downloadUrl = [NSString stringWithUTF8String:url];
-//    NSString* downloadFileMd5 = NULL;
-//    NSString* downloadFileName = NULL;
-//    if(fileName != NULL)
-//    {
-//        downloadFileName = [NSString stringWithUTF8String:fileName];
-//    }
-//
-//    if(md5 != NULL)
-//    {
-//        downloadFileMd5 = [NSString stringWithUTF8String:md5];
-//    }
-//
-//    [[DownloadTaskManager shareManager] StartDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
-//                                         currentIndex:currentIndex delayInMills:delayInMills];
-    AddDownload(url,md5,fileName,fileSize,delayInMills);
+    AddDownload(url,md5,fileName,fileSize,delayInMills,priority);
 }
 
-void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills)
+void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills,int priority)
 {
     NSString* downloadUrl = [NSString stringWithUTF8String:url];
     NSString* downloadFileMd5 = NULL;
@@ -147,9 +132,9 @@ void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fil
     {
         downloadFileMd5 = [NSString stringWithUTF8String:md5];
     }
-
+//    downloadUrl = [NSString stringWithFormat:@"%@111",downloadUrl];
     [[DownloadTaskManager shareManager] AddDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
-                                           fileSize:fileSize delayInMills:delayInMills];
+                                           fileSize:fileSize delayInMills:delayInMills priority:priority];
 }
 
 void StartiOSImp()
@@ -158,10 +143,10 @@ void StartiOSImp()
     [[DownloadTaskManager shareManager] Start];
 }
 
-void StartUnzipiOSImp(const char* downLoadedFilePath)
+void StartUnzipiOSImp(const char* downLoadedFilePath,int priority)
 {
     NSLog(@"StartUnzipiOSImp");
-    [[DownloadTaskManager shareManager] StartUnzip:[NSString stringWithUTF8String:downLoadedFilePath]];
+    [[DownloadTaskManager shareManager] StartUnzip:[NSString stringWithUTF8String:downLoadedFilePath]  priority:priority];
 }
 
 void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, DownloadComplete func2,DownloadDone func3)
@@ -194,13 +179,6 @@ void isNtfEnableIOSImp(IsNtfAuthDisable func)
     UNUserNotificationCenter * center  = [UNUserNotificationCenter currentNotificationCenter];
     [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings)
      {
-        NSLog(@"getNotificationSettingsWithCompletionHandler%@",[NSThread currentThread]);
-        NSLog(@"authorizationStatus%ld",(long)settings.authorizationStatus);
-        NSLog(@"alertSetting%ld",(long)settings.alertSetting);
-        NSLog(@"soundSetting%ld",(long)settings.lockScreenSetting);
-        NSLog(@"soundSetting%ld",(long)settings.soundSetting);
-        NSLog(@"badgeSetting%ld",(long)settings.badgeSetting);
-        NSLog(@"notificationCenterSetting%ld",(long)settings.notificationCenterSetting);
         ntfAuthDisableDelegate(settings.authorizationStatus == UNAuthorizationStatusAuthorized);
     }];
 }

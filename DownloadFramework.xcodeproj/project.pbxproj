@@ -18,6 +18,7 @@
 		161109B325F7231900CE1F1B /* DownloadBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 161109A825F7231900CE1F1B /* DownloadBridge.mm */; };
 		161109B425F7231900CE1F1B /* DownloadTaskManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 161109A925F7231900CE1F1B /* DownloadTaskManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		161109B525F7231900CE1F1B /* ProcessHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 161109AA25F7231900CE1F1B /* ProcessHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		168CAC472615ED05001EC4E5 /* QSThreadSafeMutableArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 168CAC462615ED05001EC4E5 /* QSThreadSafeMutableArray.m */; };
 		168CE4BE25F8940C00D50B4F /* ZipArchive.h in Headers */ = {isa = PBXBuildFile; fileRef = 168CE49A25F8940C00D50B4F /* ZipArchive.h */; };
 		168CE4BF25F8940C00D50B4F /* mz_strm_os_posix.c in Sources */ = {isa = PBXBuildFile; fileRef = 168CE49C25F8940C00D50B4F /* mz_strm_os_posix.c */; };
 		168CE4C025F8940C00D50B4F /* mz_strm_pkcrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 168CE49D25F8940C00D50B4F /* mz_strm_pkcrypt.c */; };
@@ -71,6 +72,8 @@
 		161109A825F7231900CE1F1B /* DownloadBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DownloadBridge.mm; sourceTree = "<group>"; };
 		161109A925F7231900CE1F1B /* DownloadTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadTaskManager.h; sourceTree = "<group>"; };
 		161109AA25F7231900CE1F1B /* ProcessHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProcessHandler.h; sourceTree = "<group>"; };
+		168CAC462615ED05001EC4E5 /* QSThreadSafeMutableArray.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QSThreadSafeMutableArray.m; sourceTree = "<group>"; };
+		168CAC4A2615ED52001EC4E5 /* QSThreadSafeMutableArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QSThreadSafeMutableArray.h; sourceTree = "<group>"; };
 		168CE49A25F8940C00D50B4F /* ZipArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZipArchive.h; sourceTree = "<group>"; };
 		168CE49C25F8940C00D50B4F /* mz_strm_os_posix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mz_strm_os_posix.c; sourceTree = "<group>"; };
 		168CE49D25F8940C00D50B4F /* mz_strm_pkcrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mz_strm_pkcrypt.c; sourceTree = "<group>"; };
@@ -161,6 +164,8 @@
 				161109A225F7231900CE1F1B /* CommonUtil.h */,
 				161109A325F7231900CE1F1B /* FileUtil.m */,
 				161109A425F7231900CE1F1B /* StringUtil.m */,
+				168CAC462615ED05001EC4E5 /* QSThreadSafeMutableArray.m */,
+				168CAC4A2615ED52001EC4E5 /* QSThreadSafeMutableArray.h */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -338,6 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				168CE4D325F8940C00D50B4F /* mz_os.c in Sources */,
+				168CAC472615ED05001EC4E5 /* QSThreadSafeMutableArray.m in Sources */,
 				161109B025F7231900CE1F1B /* StringUtil.m in Sources */,
 				161109AB25F7231900CE1F1B /* CommonUtil.m in Sources */,
 				161109B125F7231900CE1F1B /* DownloadTaskManager.m in Sources */,

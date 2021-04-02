@@ -46,4 +46,19 @@
     return @"Download Complete!";
 }
 
+
++(NSString*) getPartialFailureDownloadTip
+{
+    NSBundle* mainBundle = [NSBundle mainBundle];
+    NSDictionary* dict = [mainBundle localizedInfoDictionary];
+    if([dict.allKeys containsObject:@"PartialFailureDownloadTip"])
+        return [dict objectForKey:@"PartialFailureDownloadTip"];
+    
+    dict = [mainBundle infoDictionary];
+    if([dict.allKeys containsObject:@"PartialFailureDownloadTip"])
+        return [dict objectForKey:@"PartialFailureDownloadTip"];
+    return @"Download Complete!";
+}
+
+
 @end

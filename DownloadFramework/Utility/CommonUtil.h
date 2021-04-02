@@ -21,6 +21,6 @@
 +(NSString*) getAppName;
 
 +(NSString*) getDownloadTip;
-
++(NSString*) getPartialFailureDownloadTip;
 @end
 #endif /* CommonUtil_h */
