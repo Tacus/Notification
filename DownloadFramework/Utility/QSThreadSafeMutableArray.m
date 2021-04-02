@@ -83,6 +83,15 @@
     });
 }
 
+- (void)removeObject:(id)anObject{
+
+    dispatch_barrier_async(_syncQueue, ^{
+        if(anObject){
+           [_array removeObject:anObject];
+        }
+    });
+}
+
 - (void)removeObjectAtIndex:(NSUInteger)index{
 
     dispatch_barrier_async(_syncQueue, ^{

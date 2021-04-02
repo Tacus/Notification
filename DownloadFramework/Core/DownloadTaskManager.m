@@ -47,7 +47,7 @@ static NSUInteger lastWriteDeltaTime = 0;
 static NSUInteger lastUnzipDeltaTime = 0;
 static NSUInteger maxUnzipSameTime = 1;
 static int64_t totalSize = 0;
-static int64_t totalWritedSize = 0;
+static int64_t completeSize = 0;
 @implementation DownloadTaskInfo
 
 @end
@@ -73,7 +73,6 @@ static int64_t totalWritedSize = 0;
 @property (atomic, strong) NSMutableDictionary *downloadFailedDict;
 @property (atomic, strong) QSThreadSafeMutableArray *unzipList;
 @property (atomic, strong) NSMutableDictionary *unzipingDict;
-@property (atomic,strong) NSArray *list;
 @property BOOL resumeDataClean;
 //@property CompleteHandler completeHandler;
 
@@ -106,7 +105,8 @@ static int64_t totalWritedSize = 0;
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         queue.maxConcurrentOperationCount = 1;
         _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:queue];
-//        list contai
+        totalSize = 0;
+        completeSize = 0;
     }
     NSLog(@"init session");
     return _session;
@@ -164,9 +164,6 @@ static int64_t totalWritedSize = 0;
         NSLog(@"init session");
     }
     self.started = false;
-    
-    totalSize = 0;
-    totalWritedSize = 0;
 }
 
 - (void)StartDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)fileName fileSize:(int64_t)fileSize
@@ -236,8 +233,6 @@ static int64_t totalWritedSize = 0;
         return;
     }
     
-    totalSize += fileSize;
-    
     DownloadTaskInfo* info = [self HasAddedDownloadList:downloadUrl];
     if(NULL != info)
     {
@@ -274,9 +269,14 @@ static int64_t totalWritedSize = 0;
 {
     NSLog(@"Start currentThread1:%@",[NSThread currentThread]);
     self.started = true;
-    
+    totalSize = 0;
+    completeSize = 0;
+    dispatch_semaphore_t signal;
+    signal = dispatch_semaphore_create(2);
+    dispatch_semaphore_wait(signal, DISPATCH_TIME_FOREVER);
     for (DownloadTaskInfo* info in self.downloadList)
     {
+        totalSize += info.totalBytesExpectedToWrite;
         NSLog(@"Start currentThread2:%@",[NSThread currentThread]);
         if(NULL == info.downloadTask)
         {
@@ -285,6 +285,7 @@ static int64_t totalWritedSize = 0;
         NSLog(@"Start currentThread3:%@",[NSThread currentThread]);
     }
     NSLog(@"Start currentThread4:%@",[NSThread currentThread]);
+    dispatch_semaphore_signal(signal);
 }
 
 -(void)RetryDownload
@@ -296,7 +297,64 @@ static int64_t totalWritedSize = 0;
             info.tryCount = 0;
             [self AddReDownloadInfo:info delayInMills:0];
         }
+        [self.downloadFailedDict removeAllObjects];
         [self Start];
+    }
+}
+
+-(void)CheckAllDownloadDone
+{
+    if(self.downloadList.count > 0)
+    {
+        return;
+    }
+    NSUInteger count = self.downloadFailedDict.count;
+    if( count > 0)
+    {
+        for (NSString*key in [self.downloadFailedDict allKeys])
+        {
+            DownloadTaskInfo* info = self.downloadFailedDict[key];
+            if(info.tryCount < 3)
+            {
+                NSLog(@"reDownload addDownloadInfo");
+                [self AddReDownloadInfo:info delayInMills:300];
+                [self.downloadFailedDict removeObjectForKey:key];
+            }
+            else
+            {
+                NSLog(@"%@ exceed max limit try count!",info.downloadUrl);
+            }
+        }
+        NSUInteger leftCount = self.downloadFailedDict.count;
+        if(leftCount < count)
+        {
+            NSLog(@"reDownload start");
+            [self Start];
+        }
+        if(0 == leftCount)
+        {
+//            TODO
+            NSLog(@"正在重试所有失败文件下载！");
+        }
+        else if(count == leftCount)
+        {
+            NSLog(@"剩余下%lu个下载重试3次依然未能成功!",((unsigned long)leftCount));
+            for (NSString*key in [self.downloadFailedDict allKeys])
+            {
+                DownloadTaskInfo* info = self.downloadFailedDict[key];
+                NSLog(@"%@ exceed max limit try count!count:%lu",info.downloadUrl,((unsigned long)info.tryCount));
+            }
+            [self AllDownloadDone];
+        }
+        else
+        {
+            NSLog(@"剩余下%ld个下载重试3次依然未能成功! 正在重试%lu个之前下载失败的文件！",((unsigned long)leftCount),((unsigned long)(count - leftCount)));
+        }
+    }
+    else
+    {
+        NSLog(@"AllDownloadDone");
+        [self AllDownloadDone];
     }
 }
 
@@ -381,6 +439,7 @@ static int64_t totalWritedSize = 0;
 - (void)NextUnzipStart
 {
     int index = 0;
+    NSLog(@"NextUnzipStart unzipingDict:%lu,unzipList:%lu",(unsigned long)self.unzipingDict.count,(unsigned long)self.unzipList.count);
     while(maxUnzipSameTime > self.unzipingDict.count && 0 < self.unzipList.count)
     {
         UnzipInfo* unzipInfo = self.unzipList[index++];
@@ -420,13 +479,36 @@ static int64_t totalWritedSize = 0;
         return;
     }
     [self.unzipList addObject:[self GetUnzipInfo:zipFilePath priority:priority]];
-    self.unzipList = [QSThreadSafeMutableArray arrayWithArray:[self.unzipList sortedArrayUsingComparator:^NSComparisonResult(UnzipInfo* obj1, UnzipInfo* obj2) {
+
+    NSArray* array = [self.unzipList sortedArrayUsingComparator:^NSComparisonResult(UnzipInfo* obj1, UnzipInfo* obj2) {
         //这里的代码可以参照上面compare:默认的排序方法，也可以把自定义的方法写在这里，给对象排序
         NSComparisonResult result = obj1.priority > obj2.priority;
         return result;
-    }]];
+    }];
+    QSThreadSafeMutableArray* temp = [[QSThreadSafeMutableArray alloc] init];
+    for (UnzipInfo* info in array) {
+        [temp addObject:info];
+    }
+    self.unzipList = temp;
+    
+    for (UnzipInfo* info in self.unzipList) {
+        NSLog(@"StartUnzip url:%@, priority %d",info.zipFilePath,info.priority);
+    }
     [self NextUnzipStart];
 }
+
+
+//+ (BOOL)unzipFileAtPath:(NSString *)path
+//          toDestination:(NSString *)destination
+//     preserveAttributes:(BOOL)preserveAttributes
+//              overwrite:(BOOL)overwrite
+//         nestedZipLevel:(NSInteger)nestedZipLevel
+//               password:(nullable NSString *)password
+//                  error:(NSError **)error
+//               delegate:(nullable id<SSZipArchiveDelegate>)delegate
+//        progressHandler:(void (^_Nullable)(NSString *entry, unz_file_info zipInfo, long entryNumber, long total))progressHandler
+//      completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler;
+
 
 - (void)StartUnzipProcess:(NSString*)zipFilePath
 {
@@ -434,11 +516,20 @@ static int64_t totalWritedSize = 0;
     __weak typeof(self) weakSelf = self;
     dispatch_queue_t groupQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(groupQueue,^{
-        [SSZipArchive unzipFileAtPath:zipFilePath toDestination:self.unzipTargetPath
-                      progressHandler:^(NSString *entry, unz_file_info zipInfo, long entryNumber, long total){
+        [SSZipArchive unzipFileAtPath:zipFilePath
+                        toDestination:self.unzipTargetPath
+                   preserveAttributes:NO
+                            overwrite:YES
+                       nestedZipLevel:0
+                             password:nil
+                                error:nil
+                             delegate:nil
+                      progressHandler:^(NSString *entry, unz_file_info zipInfo, long entryNumber, long total)
+        {
             [weakSelf unzipProgress:zipFilePath entryNumber:entryNumber total:total];
         }
-                    completionHandler:^(NSString *path, BOOL succeeded, NSError * _Nullable error){
+                    completionHandler:^(NSString *path, BOOL succeeded, NSError * _Nullable error)
+        {
             [weakSelf unzipComplete:path succeeded:succeeded error:error];
             
         }];
@@ -572,6 +663,7 @@ static int64_t totalWritedSize = 0;
         info.downloadTask = downloadTask;
         info.totalBytesWritten = totalBytesWritten;
         info.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
+        totalSize += totalBytesExpectedToWrite;
         NSLog(@"add exsit download task %@:",downloadUrl);
     }
 }
@@ -613,16 +705,16 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
         info.totalBytesExpectedToWrite = totalBytesExpectedToWrite;
     }
     int64_t writed = 0;
-    int64_t total = 0;
+//    int64_t total = 0;
     
     for (DownloadTaskInfo* info in self.downloadList)
     {
         writed += info.totalBytesWritten;
-        total += info.totalBytesExpectedToWrite;
+//        total += info.totalBytesExpectedToWrite;
 //        NSLog(@"writed:%lld,CalProgress:%lld",writed,total);
     }
 //    NSLog(@"writed:%lld,CalProgress:%lld",writed,total);
-    return 1.0*writed/total;
+    return 1.0*(writed+completeSize)/totalSize;
 }
 
 -(void)AddFailureDownload:(DownloadTaskInfo*)info
@@ -804,6 +896,7 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
         [self RemoveDownloadInfo:downloadUrl];
         NSString* errorMsg = NULL;
         NSString* downloadFilePath = info.downloadFilePath;
+        completeSize += info.totalBytesExpectedToWrite;
         if(responseCode == 200 || responseCode == 206)
         {
             NSString* moveError = [self renameTempFile:location.path destPath:downloadFilePath];
@@ -909,8 +1002,7 @@ didCompleteWithError:(nullable NSError *)error {
             if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
                 responseCode =(int)[(NSHTTPURLResponse *)task.response statusCode];
             }
-           
-           
+             
             info.errorMsg = error.localizedDescription;
             info.errorScope = errorScope;
             info.responseCode = responseCode;
@@ -930,6 +1022,11 @@ didCompleteWithError:(nullable NSError *)error {
         }
         NSLog(@"收到下载完成，但是游戏逻辑未开始，或未找到下载信息:%@",error);
     }
+    if(NULL != info)
+    {
+        completeSize += info.totalBytesExpectedToWrite;
+    }
+    [self CheckAllDownloadDone];
 }
 
 /*
@@ -964,54 +1061,7 @@ didCompleteWithError:(nullable NSError *)error {
     {
         return;
     }
-    NSUInteger count = self.downloadFailedDict.count;
-    if( count > 0)
-    {
-        for (NSString*key in [self.downloadFailedDict allKeys])
-        {
-            DownloadTaskInfo* info = self.downloadFailedDict[key];
-            if(info.tryCount < 3)
-            {
-                NSLog(@"reDownload addDownloadInfo");
-                [self AddReDownloadInfo:info delayInMills:300];
-                [self.downloadFailedDict removeObjectForKey:key];
-            }
-            else
-            {
-                NSLog(@"%@ exceed max limit try count!",info.downloadUrl);
-            }
-        }
-        NSUInteger leftCount = self.downloadFailedDict.count;
-        if(leftCount < count)
-        {
-            NSLog(@"reDownload start");
-            [self Start];
-        }
-        if(0 == leftCount)
-        {
-//            TODO
-            NSLog(@"正在重试所有失败文件下载！");
-        }
-        else if(count == leftCount)
-        {
-            NSLog(@"剩余下%lu个下载重试3次依然未能成功!",((unsigned long)leftCount));
-            for (NSString*key in [self.downloadFailedDict allKeys])
-            {
-                DownloadTaskInfo* info = self.downloadFailedDict[key];
-                NSLog(@"%@ exceed max limit try count!count:%lu",info.downloadUrl,((unsigned long)info.tryCount));
-            }
-            [self AllDownloadDone];
-        }
-        else
-        {
-            NSLog(@"剩余下%ld个下载重试3次依然未能成功! 正在重试%lu个之前下载失败的文件！",((unsigned long)leftCount),((unsigned long)(count - leftCount)));
-        }
-    }
-    else
-    {
-        NSLog(@"AllDownloadDone");
-        [self AllDownloadDone];
-    }
+//    [self CheckAllDownloadDone];
 }
 
 /* The last message a session receives.  A session will only become
@@ -1055,7 +1105,7 @@ didCompleteWithError:(nullable NSError *)error {
 }
 
 
-- (NSArray *)getResumeDataFilePathArray {
+- (NSMutableArray *)getResumeDataFilePathArray {
     NSMutableArray *urls = [NSMutableArray array];
     //目录
     NSString *homePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
