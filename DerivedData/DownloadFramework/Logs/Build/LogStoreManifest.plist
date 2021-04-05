@@ -312,6 +312,40 @@
 			<key>uniqueIdentifier</key>
 			<string>97565459-CB92-4A84-8A38-12770E6C1D1C</string>
 		</dict>
+		<key>97F2803F-73CF-4AD3-AEA7-AC11FF33AD75</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>97F2803F-73CF-4AD3-AEA7-AC11FF33AD75.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>DownloadFramework project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>DownloadFramework</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Build DownloadFramework</string>
+			<key>timeStartedRecording</key>
+			<real>639313954.48710704</real>
+			<key>timeStoppedRecording</key>
+			<real>639313955.764534</real>
+			<key>title</key>
+			<string>Build DownloadFramework</string>
+			<key>uniqueIdentifier</key>
+			<string>97F2803F-73CF-4AD3-AEA7-AC11FF33AD75</string>
+		</dict>
 		<key>B05DC381-1036-42B1-AC36-FB41F67A0C8B</key>
 		<dict>
 			<key>className</key>
@@ -481,6 +515,40 @@
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
 			<string>F625E9BD-1486-4C7F-BD74-2C51D224DC99</string>
+		</dict>
+		<key>FE72C6D9-0169-4392-8DBC-F754292F7CE4</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>FE72C6D9-0169-4392-8DBC-F754292F7CE4.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>DownloadFramework project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>DownloadFramework</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Build DownloadFramework</string>
+			<key>timeStartedRecording</key>
+			<real>639313598.34329295</real>
+			<key>timeStoppedRecording</key>
+			<real>639313601.13884199</real>
+			<key>title</key>
+			<string>Build DownloadFramework</string>
+			<key>uniqueIdentifier</key>
+			<string>FE72C6D9-0169-4392-8DBC-F754292F7CE4</string>
 		</dict>
 	</dict>
 </dict>

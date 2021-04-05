@@ -1331,7 +1331,7 @@ didCompleteWithError:(nullable NSError *)error {
         
         if(NotReachable == currentNetType)
         {
-            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5000 * NSEC_PER_MSEC));
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(25000 * NSEC_PER_MSEC));
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                 if(NotReachable == currentNetType)
                 {
