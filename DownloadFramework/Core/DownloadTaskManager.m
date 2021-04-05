@@ -102,8 +102,8 @@ static NSInteger currentNetType = -1;
     {
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:[CommonUtil getBundleID]];
         
-        configuration.timeoutIntervalForResource = 60;
-        configuration.timeoutIntervalForRequest = 300;
+       //configuration.timeoutIntervalForResource = 60;
+       // configuration.timeoutIntervalForRequest = 300;
 //        configuration.waitsForConnectivity = TRUE;
         if(netTypeUserConfirm == ReachableViaWWAN)
         {

@@ -6,6 +6,74 @@
 	<integer>10</integer>
 	<key>logs</key>
 	<dict>
+		<key>14AFBAA0-8513-4FEE-A31D-0F04CBEEF34F</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>14AFBAA0-8513-4FEE-A31D-0F04CBEEF34F.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>DownloadFramework project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>DownloadFramework</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Build DownloadFramework</string>
+			<key>timeStartedRecording</key>
+			<real>639311963.27830195</real>
+			<key>timeStoppedRecording</key>
+			<real>639311964.12029505</real>
+			<key>title</key>
+			<string>Build DownloadFramework</string>
+			<key>uniqueIdentifier</key>
+			<string>14AFBAA0-8513-4FEE-A31D-0F04CBEEF34F</string>
+		</dict>
+		<key>18680599-6F16-4BAC-8C11-333D2306E38D</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>18680599-6F16-4BAC-8C11-333D2306E38D.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>DownloadFramework project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>DownloadFramework</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Build DownloadFramework</string>
+			<key>timeStartedRecording</key>
+			<real>639311657.96766806</real>
+			<key>timeStoppedRecording</key>
+			<real>639311659.54486501</real>
+			<key>title</key>
+			<string>Build DownloadFramework</string>
+			<key>uniqueIdentifier</key>
+			<string>18680599-6F16-4BAC-8C11-333D2306E38D</string>
+		</dict>
 		<key>19BD812A-A1BE-4190-94BE-8F17A2081675</key>
 		<dict>
 			<key>className</key>
@@ -141,6 +209,40 @@
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
 			<string>5F5AEF94-D025-401C-9E43-427C1920E64C</string>
+		</dict>
+		<key>81C5CA7A-DAA4-4E2A-BD1E-4978382353C2</key>
+		<dict>
+			<key>className</key>
+			<string>IDEActivityLogSection</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>81C5CA7A-DAA4-4E2A-BD1E-4978382353C2.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>DownloadFramework project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>DownloadFramework</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Build DownloadFramework</string>
+			<key>timeStartedRecording</key>
+			<real>639311973.42048895</real>
+			<key>timeStoppedRecording</key>
+			<real>639311975.007128</real>
+			<key>title</key>
+			<string>Build DownloadFramework</string>
+			<key>uniqueIdentifier</key>
+			<string>81C5CA7A-DAA4-4E2A-BD1E-4978382353C2</string>
 		</dict>
 		<key>8AA6F417-4E64-4A5F-8630-567E1078C3FA</key>
 		<dict>
