@@ -1,0 +1,63 @@
+{
+  'version': 0,
+  'case-sensitive': 'false',
+  'roots': [
+    {
+      'type': 'directory',
+      'name': "/Users/ganicus/develop/ROReposity/Notification/DerivedData/Build/Products/Debug-iphonesimulator/UnityFramework.framework/Headers",
+      'contents': [
+        {
+          'type': 'file',
+          'name': "JPUSHService.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/JPush/JPUSHService.h"
+        },
+        {
+          'type': 'file',
+          'name': "LifeCycleListener.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/Classes/PluginBase/LifeCycleListener.h"
+        },
+        {
+          'type': 'file',
+          'name': "RedefinePlatforms.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/Classes/RedefinePlatforms.h"
+        },
+        {
+          'type': 'file',
+          'name': "RenderPluginDelegate.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/Classes/PluginBase/RenderPluginDelegate.h"
+        },
+        {
+          'type': 'file',
+          'name': "UndefinePlatforms.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/Classes/UndefinePlatforms.h"
+        },
+        {
+          'type': 'file',
+          'name': "UnityAppController.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/Classes/UnityAppController.h"
+        },
+        {
+          'type': 'file',
+          'name': "UnityFramework-Swift.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/DerivedData/Build/Products/Debug-iphonesimulator/UnityFramework.framework/Headers/UnityFramework-Swift.h"
+        },
+        {
+          'type': 'file',
+          'name': "UnityFramework.h",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/UnityFramework/UnityFramework.h"
+        }
+      ]
+    },
+    {
+      'type': 'directory',
+      'name': "/Users/ganicus/develop/ROReposity/Notification/DerivedData/Build/Products/Debug-iphonesimulator/UnityFramework.framework/Modules",
+      'contents': [
+        {
+          'type': 'file',
+          'name': "module.modulemap",
+          'external-contents': "/Users/ganicus/develop/ROReposity/Notification/DerivedData/Build/Intermediates.noindex/Unity-iPhone.build/Debug-iphonesimulator/UnityFramework.build/module.modulemap"
+        }
+      ]
+    }
+  ]
+}

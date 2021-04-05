@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>10</integer>
+	<key>logs</key>
+	<dict>
+		<key>DD0AC63F-4867-40FD-8A3A-69376AC112DD</key>
+		<dict>
+			<key>className</key>
+			<string>DBGConsoleLog</string>
+			<key>documentTypeString</key>
+			<string>com.apple.dt.IDE.DebuggerLogContentType</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.DebugLog</string>
+			<key>fileName</key>
+			<string>DD0AC63F-4867-40FD-8A3A-69376AC112DD.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+			</dict>
+			<key>signature</key>
+			<string>Run ro</string>
+			<key>timeStartedRecording</key>
+			<real>639153595.19737399</real>
+			<key>timeStoppedRecording</key>
+			<real>639153613.93972003</real>
+			<key>title</key>
+			<string>Run ro</string>
+			<key>uniqueIdentifier</key>
+			<string>DD0AC63F-4867-40FD-8A3A-69376AC112DD</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

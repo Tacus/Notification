@@ -132,7 +132,7 @@ void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fil
     {
         downloadFileMd5 = [NSString stringWithUTF8String:md5];
     }
-    downloadUrl = [NSString stringWithFormat:@"%@111",downloadUrl];
+    //downloadUrl = [NSString stringWithFormat:@"%@111",downloadUrl];
     [[DownloadTaskManager shareManager] AddDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
                                            fileSize:fileSize delayInMills:delayInMills priority:priority];
 }
