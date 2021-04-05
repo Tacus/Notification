@@ -6,7 +6,7 @@
 	<integer>10</integer>
 	<key>logs</key>
 	<dict>
-		<key>14AFBAA0-8513-4FEE-A31D-0F04CBEEF34F</key>
+		<key>372BA7A8-826F-49FB-B5F3-F4E428E86F6C</key>
 		<dict>
 			<key>className</key>
 			<string>IDEActivityLogSection</string>
@@ -15,75 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>14AFBAA0-8513-4FEE-A31D-0F04CBEEF34F.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>E</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639311963.27830195</real>
-			<key>timeStoppedRecording</key>
-			<real>639311964.12029505</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>14AFBAA0-8513-4FEE-A31D-0F04CBEEF34F</string>
-		</dict>
-		<key>18680599-6F16-4BAC-8C11-333D2306E38D</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>18680599-6F16-4BAC-8C11-333D2306E38D.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639311657.96766806</real>
-			<key>timeStoppedRecording</key>
-			<real>639311659.54486501</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>18680599-6F16-4BAC-8C11-333D2306E38D</string>
-		</dict>
-		<key>19BD812A-A1BE-4190-94BE-8F17A2081675</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>19BD812A-A1BE-4190-94BE-8F17A2081675.xcactivitylog</string>
+			<string>372BA7A8-826F-49FB-B5F3-F4E428E86F6C.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -100,15 +32,15 @@
 			<key>signature</key>
 			<string>Build DownloadFramework</string>
 			<key>timeStartedRecording</key>
-			<real>639302376.66709697</real>
+			<real>639316066.04649496</real>
 			<key>timeStoppedRecording</key>
-			<real>639302378.19154596</real>
+			<real>639316067.51218903</real>
 			<key>title</key>
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
-			<string>19BD812A-A1BE-4190-94BE-8F17A2081675</string>
+			<string>372BA7A8-826F-49FB-B5F3-F4E428E86F6C</string>
 		</dict>
-		<key>2977E9C4-9047-46CC-BC47-820A19263C07</key>
+		<key>3E31943F-8CC7-4A4A-B76F-85E6EFF130FD</key>
 		<dict>
 			<key>className</key>
 			<string>IDEActivityLogSection</string>
@@ -117,75 +49,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>2977E9C4-9047-46CC-BC47-820A19263C07.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639302505.33170199</real>
-			<key>timeStoppedRecording</key>
-			<real>639302506.78179002</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>2977E9C4-9047-46CC-BC47-820A19263C07</string>
-		</dict>
-		<key>2E9A7767-A3E6-4465-BD61-14196052AB42</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>2E9A7767-A3E6-4465-BD61-14196052AB42.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639302617.69173598</real>
-			<key>timeStoppedRecording</key>
-			<real>639302617.728441</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>2E9A7767-A3E6-4465-BD61-14196052AB42</string>
-		</dict>
-		<key>5F5AEF94-D025-401C-9E43-427C1920E64C</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>5F5AEF94-D025-401C-9E43-427C1920E64C.xcactivitylog</string>
+			<string>3E31943F-8CC7-4A4A-B76F-85E6EFF130FD.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -202,15 +66,15 @@
 			<key>signature</key>
 			<string>Build DownloadFramework</string>
 			<key>timeStartedRecording</key>
-			<real>639279389.05644405</real>
+			<real>639321787.82760406</real>
 			<key>timeStoppedRecording</key>
-			<real>639279392.56712198</real>
+			<real>639321787.88887405</real>
 			<key>title</key>
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
-			<string>5F5AEF94-D025-401C-9E43-427C1920E64C</string>
+			<string>3E31943F-8CC7-4A4A-B76F-85E6EFF130FD</string>
 		</dict>
-		<key>81C5CA7A-DAA4-4E2A-BD1E-4978382353C2</key>
+		<key>7906C709-29E8-4119-A9D3-3361820AC294</key>
 		<dict>
 			<key>className</key>
 			<string>IDEActivityLogSection</string>
@@ -219,41 +83,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>81C5CA7A-DAA4-4E2A-BD1E-4978382353C2.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639311973.42048895</real>
-			<key>timeStoppedRecording</key>
-			<real>639311975.007128</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>81C5CA7A-DAA4-4E2A-BD1E-4978382353C2</string>
-		</dict>
-		<key>8AA6F417-4E64-4A5F-8630-567E1078C3FA</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>8AA6F417-4E64-4A5F-8630-567E1078C3FA.xcactivitylog</string>
+			<string>7906C709-29E8-4119-A9D3-3361820AC294.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -270,47 +100,13 @@
 			<key>signature</key>
 			<string>Build DownloadFramework</string>
 			<key>timeStartedRecording</key>
-			<real>639302422.06165504</real>
+			<real>639323170.12288797</real>
 			<key>timeStoppedRecording</key>
-			<real>639302423.31575406</real>
+			<real>639323171.35691094</real>
 			<key>title</key>
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
-			<string>8AA6F417-4E64-4A5F-8630-567E1078C3FA</string>
-		</dict>
-		<key>97565459-CB92-4A84-8A38-12770E6C1D1C</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>97565459-CB92-4A84-8A38-12770E6C1D1C.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639302569.05367899</real>
-			<key>timeStoppedRecording</key>
-			<real>639302570.27809799</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>97565459-CB92-4A84-8A38-12770E6C1D1C</string>
+			<string>7906C709-29E8-4119-A9D3-3361820AC294</string>
 		</dict>
 		<key>97F2803F-73CF-4AD3-AEA7-AC11FF33AD75</key>
 		<dict>
@@ -346,7 +142,7 @@
 			<key>uniqueIdentifier</key>
 			<string>97F2803F-73CF-4AD3-AEA7-AC11FF33AD75</string>
 		</dict>
-		<key>B05DC381-1036-42B1-AC36-FB41F67A0C8B</key>
+		<key>C2F3C046-FC03-4128-B969-353BAC2868C0</key>
 		<dict>
 			<key>className</key>
 			<string>IDEActivityLogSection</string>
@@ -355,75 +151,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>B05DC381-1036-42B1-AC36-FB41F67A0C8B.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639302582.84635794</real>
-			<key>timeStoppedRecording</key>
-			<real>639302582.88578498</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>B05DC381-1036-42B1-AC36-FB41F67A0C8B</string>
-		</dict>
-		<key>D9CDF5F8-DD08-44E1-AFD7-F66F89F5FD30</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>D9CDF5F8-DD08-44E1-AFD7-F66F89F5FD30.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639303630.41943097</real>
-			<key>timeStoppedRecording</key>
-			<real>639303631.87930799</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>D9CDF5F8-DD08-44E1-AFD7-F66F89F5FD30</string>
-		</dict>
-		<key>E7BA94B4-E75B-47AA-93AC-BC40EA5BDDB0</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>E7BA94B4-E75B-47AA-93AC-BC40EA5BDDB0.xcactivitylog</string>
+			<string>C2F3C046-FC03-4128-B969-353BAC2868C0.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -440,15 +168,15 @@
 			<key>signature</key>
 			<string>Build DownloadFramework</string>
 			<key>timeStartedRecording</key>
-			<real>639279431.24709797</real>
+			<real>639322886.91099596</real>
 			<key>timeStoppedRecording</key>
-			<real>639279431.28239095</real>
+			<real>639322888.10507905</real>
 			<key>title</key>
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
-			<string>E7BA94B4-E75B-47AA-93AC-BC40EA5BDDB0</string>
+			<string>C2F3C046-FC03-4128-B969-353BAC2868C0</string>
 		</dict>
-		<key>F16D94B2-B2F5-4319-854C-1ED6E0B94A71</key>
+		<key>E8E99CE4-A279-483D-90B0-1DE5CE8A1169</key>
 		<dict>
 			<key>className</key>
 			<string>IDEActivityLogSection</string>
@@ -457,7 +185,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>F16D94B2-B2F5-4319-854C-1ED6E0B94A71.xcactivitylog</string>
+			<string>E8E99CE4-A279-483D-90B0-1DE5CE8A1169.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -474,15 +202,15 @@
 			<key>signature</key>
 			<string>Build DownloadFramework</string>
 			<key>timeStartedRecording</key>
-			<real>639235119.312374</real>
+			<real>639322905.89779401</real>
 			<key>timeStoppedRecording</key>
-			<real>639235119.45014703</real>
+			<real>639322905.93563294</real>
 			<key>title</key>
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
-			<string>F16D94B2-B2F5-4319-854C-1ED6E0B94A71</string>
+			<string>E8E99CE4-A279-483D-90B0-1DE5CE8A1169</string>
 		</dict>
-		<key>F625E9BD-1486-4C7F-BD74-2C51D224DC99</key>
+		<key>F83FF04F-3CD8-429C-BAE9-71FF6030EFF4</key>
 		<dict>
 			<key>className</key>
 			<string>IDEActivityLogSection</string>
@@ -491,7 +219,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>F625E9BD-1486-4C7F-BD74-2C51D224DC99.xcactivitylog</string>
+			<string>F83FF04F-3CD8-429C-BAE9-71FF6030EFF4.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -508,47 +236,13 @@
 			<key>signature</key>
 			<string>Build DownloadFramework</string>
 			<key>timeStartedRecording</key>
-			<real>639279403.69112802</real>
+			<real>639322749.636199</real>
 			<key>timeStoppedRecording</key>
-			<real>639279403.73158097</real>
+			<real>639322750.88560796</real>
 			<key>title</key>
 			<string>Build DownloadFramework</string>
 			<key>uniqueIdentifier</key>
-			<string>F625E9BD-1486-4C7F-BD74-2C51D224DC99</string>
-		</dict>
-		<key>FE72C6D9-0169-4392-8DBC-F754292F7CE4</key>
-		<dict>
-			<key>className</key>
-			<string>IDEActivityLogSection</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>FE72C6D9-0169-4392-8DBC-F754292F7CE4.xcactivitylog</string>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>W</string>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>DownloadFramework project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>DownloadFramework</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Build DownloadFramework</string>
-			<key>timeStartedRecording</key>
-			<real>639313598.34329295</real>
-			<key>timeStoppedRecording</key>
-			<real>639313601.13884199</real>
-			<key>title</key>
-			<string>Build DownloadFramework</string>
-			<key>uniqueIdentifier</key>
-			<string>FE72C6D9-0169-4392-8DBC-F754292F7CE4</string>
+			<string>F83FF04F-3CD8-429C-BAE9-71FF6030EFF4</string>
 		</dict>
 	</dict>
 </dict>

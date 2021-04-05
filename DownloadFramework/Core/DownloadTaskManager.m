@@ -425,6 +425,10 @@ static NSInteger currentNetType = -1;
     if(currentTime - lastUnzipDeltaTime > 100)
     {
         double progress = [self CalUnzipProgress:zipFilePath totalFileWriten:entryNumber totalFileExpectedWriten:total];
+        if(progress > 1.0)
+        {
+            progress = 1.0;
+        }
         [self.processHandler unzipProgress:zipFilePath progress:progress*100];
         lastUnzipDeltaTime = currentTime;
 //        NSLog(@"unzip path:%@,progress:%f",zipFilePath,progress);
@@ -657,10 +661,10 @@ static NSInteger currentNetType = -1;
     [resumeData writeToFile:[self getTmpPathWithUrl:urlStr] atomically:YES];
     self.resumeDataClean = FALSE;
     NSString* fileName = [FileUtil getFileNameByUrl:urlStr];
-    if([self.resumeDataDict.allKeys containsObject:fileName])
-    {
+//    if([self.resumeDataDict.allKeys containsObject:fileName])
+//    {
         [self.resumeDataDict setValue:resumeData forKey:fileName];
-    }
+//    }
 //    [self.downloadTaskDic removeObjectForKey:urlStr];
 }
 
@@ -739,12 +743,11 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
     }
     int64_t writed = 0;
 //    int64_t total = 0;
-    
+    NSLog(@"downloadUrl:%@,writed:%lld,CalProgress:%lld",downloadUrl,totalBytesWritten,totalBytesExpectedToWrite);
     for (DownloadTaskInfo* info in self.downloadList)
     {
         writed += info.totalBytesWritten;
-//        total += info.totalBytesExpectedToWrite;
-//        NSLog(@"writed:%lld,CalProgress:%lld",writed,total);
+       
     }
 //    NSLog(@"writed:%lld,CalProgress:%lld",writed,total);
     return 1.0*(writed+completeSize)/totalSize;
@@ -893,10 +896,14 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     {
         float progress = [self CalProgress:downloadTask.taskDescription totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
         
-//        NSInteger speed = lastWriteDeltaData * 1000.0 /deltaTime;
-//        NSString* speedStr = [StringUtil humanReadableByteCount:speed];
-//
-//        NSLog(@"download task descriptio %@,totalBytesWritten:%lld,totalBytesExpectedToWrite:%lld,progress:%f,speed:%@",downloadTask.taskDescription,totalBytesWritten,totalBytesExpectedToWrite,progress,speedStr);
+        NSInteger speed = lastWriteDeltaData * 1000.0 /deltaTime;
+        NSString* speedStr = [StringUtil humanReadableByteCount:speed];
+
+        NSLog(@"download task descriptio %@,totalBytesWritten:%lld,totalBytesExpectedToWrite:%lld,progress:%f,speed:%@",downloadTask.taskDescription,totalBytesWritten,totalBytesExpectedToWrite,progress,speedStr);
+        if(progress >1.0)
+        {
+            progress = 1.0;
+        }
         [self.processHandler downloadProgress:downloadTask.taskDescription progress:progress*100];
         lastWriteDeltaTime = currentTime;
         lastWriteDeltaData = 0;
@@ -1347,7 +1354,9 @@ didCompleteWithError:(nullable NSError *)error {
     for (DownloadTaskInfo* info in self.downloadList) {
         if(NULL != info.downloadTask)
         {
-            [info.downloadTask cancel];
+            [info.downloadTask cancelByProducingResumeData:^(NSData* resumeDate){
+                [self saveDownloadTmpFileWithResumeData:resumeDate url:info.downloadUrl];
+            }];
         }
     }
     [self.session invalidateAndCancel];
