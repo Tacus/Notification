@@ -812,7 +812,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
         NSString* errorTip = NULL;
         for (NSString* key in self.downloadFailedDict) {
             DownloadTaskInfo* info = self.downloadFailedDict[key];
-            errorTip = [NSString stringWithFormat:@"errorMsg:%@|&$|errorScope:%ld|&$|responseCode:%ld",info.errorMsg,(long)info.errorScope,(long)info.responseCode];
+            errorTip = [NSString stringWithFormat:@"errorMsg:%@|&$|errorScope:%ld|&$|responseCode:%ld|&$|downloadUrl:%@",info.errorMsg,(long)info.errorScope,(long)info.responseCode,info.downloadUrl];
             break;
         }
         [self.processHandler downloadDone:errorTip];
@@ -961,7 +961,6 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
                 {
                     errorMsg = @"md5 verify failure!!!";
                     errorScope = 7;
-                    
                 }
                 else
                 {
