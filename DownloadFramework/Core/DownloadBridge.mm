@@ -194,3 +194,9 @@ void goToNtfSettingViewIOSImp(void)
         [application openURL:url options:@{} completionHandler:nil];
     }
 }
+
+
+void CleariOSImp(void)
+{
+    [[DownloadTaskManager shareManager] CancelAllDownload];
+}

@@ -61,6 +61,7 @@ void StartiOSImp(void);
 void isNtfEnableIOSImp(IsNtfAuthDisable);
 void goToNtfSettingViewIOSImp(void);
 void ReDownloadiOSImp(void);
+void CleariOSImp(void);
 
 #ifdef __cplusplus
 }

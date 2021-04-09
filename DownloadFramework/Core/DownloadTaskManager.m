@@ -77,7 +77,7 @@ static NSInteger currentNetType = -1;
 @property (atomic, strong) NSMutableDictionary *resumeDataDict;
 @property (atomic, strong) NSMutableDictionary *downloadFailedDict;
 @property (atomic, strong) QSThreadSafeMutableArray *unzipList;
-@property (atomic, strong) NSMutableDictionary *unzipingDict;
+@property (atomic, strong) QSThreadSafeMutableArray *unzipingList;
 @property BOOL resumeDataClean;
 //@property CompleteHandler completeHandler;
 
@@ -103,7 +103,7 @@ static NSInteger currentNetType = -1;
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:[CommonUtil getBundleID]];
         
        //configuration.timeoutIntervalForResource = 60;
-       // configuration.timeoutIntervalForRequest = 300;
+        configuration.timeoutIntervalForRequest = 300;
 //        configuration.waitsForConnectivity = TRUE;
         if(netTypeUserConfirm == ReachableViaWWAN)
         {
@@ -141,6 +141,7 @@ static NSInteger currentNetType = -1;
             break;
         }
     }
+    [self initNetEnv];
 }
 
 - (instancetype)init
@@ -149,7 +150,7 @@ static NSInteger currentNetType = -1;
 //        _downloadTaskDict = [NSMutableDictionary dictionary];
         _resumeDataDict = [NSMutableDictionary dictionary];
         _downloadFailedDict = [NSMutableDictionary dictionary];
-        _unzipingDict = [NSMutableDictionary dictionary];
+        _unzipingList = [[QSThreadSafeMutableArray alloc]init];
         _unzipList = [[QSThreadSafeMutableArray alloc]init];
         _downloadList = [[QSThreadSafeMutableArray alloc] init] ;
     }
@@ -170,15 +171,22 @@ static NSInteger currentNetType = -1;
 //    [_downloadTaskDict removeAllObjects];
     [_resumeDataDict removeAllObjects];
     [_downloadFailedDict removeAllObjects];
-    [_unzipingDict removeAllObjects];
+    [_unzipingList removeAllObjects];
     [_unzipList removeAllObjects];
     [_downloadList removeAllObjects];
-
+    if(self.session)
+    {
+        NSLog(@"InitDownload");
+    }
     self.started = false;
 }
 
 -(void)initNetEnv
 {
+    if(NULL != hostReachability)
+    {
+        [hostReachability stopNotifier];
+    }
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
 
     //Change the host name here to change the server you want to monitor.
@@ -209,7 +217,6 @@ static NSInteger currentNetType = -1;
         return;
     }
     
-    NSLog(@"StartDownload current Thread %@:",[NSThread currentThread]);
     DownloadTaskInfo* info = [self HasAddedDownloadList:downloadUrl];
     if(NULL != info)
     {
@@ -240,8 +247,8 @@ static NSInteger currentNetType = -1;
 - (void)AddDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)fileName fileSize:(int64_t)fileSize
        delayInMills:(int)delayInMills  priority:(int)priority
 {
-    NSLog(@"AddDownload url:%@ md5 %@:fileName %@:filesize:%lld delayInMills:%d currentThread:%@",
-          downloadUrl,md5,fileName,fileSize,delayInMills,[NSThread currentThread]);
+    NSLog(@"AddDownload url:%@ md5 %@:fileName %@:filesize:%lld delayInMills:%d",
+          downloadUrl,md5,fileName,fileSize,delayInMills);
     if (![self checkIsUrlAtString:downloadUrl]) {
         NSLog(@"无效的下载地址===%@", downloadUrl);
         return;
@@ -278,10 +285,10 @@ static NSInteger currentNetType = -1;
 
 -(void)AddReDownloadInfo:(DownloadTaskInfo*)info delayInMills:(int)delayInMills
 {
-    NSLog(@"AddDownload:delayInMills url:%@ currentThread:%@ trycount:%ld",info.downloadUrl,[NSThread currentThread],(unsigned long)info.tryCount);
+    NSLog(@"AddDownload:delayInMills url:%@ trycount:%ld",info.downloadUrl,(unsigned long)info.tryCount);
     info.tryCount++;
     
-    if([self HasAddedDownloadList:info.downloadUrl])
+    if(NULL != [self HasAddedDownloadList:info.downloadUrl])
     {
         NSLog(@"already exsit downloadUrl:%@",info.downloadUrl);
         return;
@@ -292,21 +299,17 @@ static NSInteger currentNetType = -1;
 -(void)Start
 {
     netTypeUserConfirm = currentNetType;
-    NSLog(@"Start currentThread1:%@",[NSThread currentThread]);
     self.started = true;
     totalSize = 0;
     completeSize = 0;
     for (DownloadTaskInfo* info in self.downloadList)
     {
         totalSize += info.totalBytesExpectedToWrite;
-        NSLog(@"Start currentThread2:%@",[NSThread currentThread]);
         if(NULL == info.downloadTask)
         {
             [self activeDownloadSessionTaskWithUrl:info.downloadUrl];
         }
-        NSLog(@"Start currentThread3:%@",[NSThread currentThread]);
     }
-    NSLog(@"Start currentThread4:%@",[NSThread currentThread]);
 }
 
 -(void)RetryDownload
@@ -359,12 +362,12 @@ static NSInteger currentNetType = -1;
         }
         else if(count == leftCount)
         {
-            NSLog(@"剩余下%lu个下载重试3次依然未能成功!",((unsigned long)leftCount));
-            for (NSString*key in [self.downloadFailedDict allKeys])
-            {
-                DownloadTaskInfo* info = self.downloadFailedDict[key];
-                NSLog(@"%@ exceed max limit try count!count:%lu",info.downloadUrl,((unsigned long)info.tryCount));
-            }
+            NSLog(@"剩余下%lu个下载重试%lu次依然未能成功!",((unsigned long)leftCount),(unsigned long)maxDownloadTryCount);
+//            for (NSString*key in [self.downloadFailedDict allKeys])
+//            {
+//                DownloadTaskInfo* info = self.downloadFailedDict[key];
+//                NSLog(@"%@ exceed max limit try count!count:%lu",info.downloadUrl,((unsigned long)info.tryCount));
+//            }
             [self AllDownloadDone];
         }
         else
@@ -400,18 +403,17 @@ static NSInteger currentNetType = -1;
          totalFileWriten:(long)totalFileWriten
          totalFileExpectedWriten:(long)totalFileExpectedWriten
 {
-    if([self.unzipingDict.allKeys containsObject:zipFilePath])
+    UnzipInfo* exsitInfo = [self HasAddedUnzipList:zipFilePath List:self.unzipingList];
+    if(NULL != exsitInfo)
     {
-        UnzipInfo* info = [self.unzipingDict objectForKey:zipFilePath];
-        info.unzipedCount = totalFileWriten;
-        info.unzipTotalCount = totalFileExpectedWriten;
+        exsitInfo.unzipedCount = totalFileWriten;
+        exsitInfo.unzipTotalCount = totalFileExpectedWriten;
     }
     long writed = 0;
     long total = 0;
     
-    for (NSString* key in self.unzipingDict)
+    for (UnzipInfo* info in self.unzipingList)
     {
-        UnzipInfo* info = [self.unzipingDict objectForKey:key];
         writed += info.unzipedCount;
         total += info.unzipTotalCount;
     }
@@ -437,10 +439,10 @@ static NSInteger currentNetType = -1;
 
 -(void)unzipComplete:(NSString *)path succeeded:(BOOL) succeeded error:(NSError*) error
 {
-    NSLog(@"unzipComplete path:%@,progress:%@",path,error);
+    NSLog(@"unzipComplete path:%@,error:%@",path,error);
     if(NULL != path)
     {
-        [self.unzipingDict removeObjectForKey:path];
+        [self RemoveUnzipInfoFromList:path List:self.unzipingList];
     }
     
     if(NULL!= error)
@@ -454,7 +456,7 @@ static NSInteger currentNetType = -1;
     }
     [self NextUnzipStart];
     
-    if(0 == self.unzipingDict.count && 0 == self.downloadList.count)
+    if(0 == self.unzipingList.count && 0 == self.downloadList.count && 0 == self.downloadFailedDict.count)
     {
         [self.processHandler unzipDone];
         NSLog(@"下载列表，解压列表为空！且终失败列表大小：%lu",((unsigned long)self.downloadFailedDict.count));
@@ -464,16 +466,17 @@ static NSInteger currentNetType = -1;
 - (void)NextUnzipStart
 {
     int index = 0;
-    NSLog(@"NextUnzipStart unzipingDict:%lu,unzipList:%lu",(unsigned long)self.unzipingDict.count,(unsigned long)self.unzipList.count);
-    while(maxUnzipSameTime > self.unzipingDict.count && 0 < self.unzipList.count)
+    NSLog(@"NextUnzipStart unzipingDict:%lu,unzipList:%lu",(unsigned long)self.unzipingList.count,(unsigned long)self.unzipList.count);
+    while(maxUnzipSameTime > self.unzipingList.count && 0 < self.unzipList.count)
     {
         UnzipInfo* unzipInfo = self.unzipList[index++];
         if([self HasHigherPriorityToBeUnzip:unzipInfo])
         {
             return;
         }
-        [self RemoveUnzipInfo:unzipInfo.zipFilePath];
-        self.unzipingDict[unzipInfo.zipFilePath] = unzipInfo;
+        [self RemoveUnzipInfoFromList:unzipInfo.zipFilePath List:self.unzipList];
+        [self.unzipingList addObject:unzipInfo];
+//        self.unzipingDict[unzipInfo.zipFilePath] = unzipInfo;
         NSLog(@"NextUnzipStart：%@",unzipInfo.zipFilePath);
         [self StartUnzipProcess:unzipInfo.zipFilePath];
     }
@@ -481,7 +484,6 @@ static NSInteger currentNetType = -1;
 
 -(BOOL)HasHigherPriorityToBeUnzip:(UnzipInfo*)info
 {
-    NSLog(@"current Thread %@:",[NSThread currentThread]);
     for (DownloadTaskInfo* downloadInfo in self.downloadList) {
         if(downloadInfo.priority < info.priority)
             return TRUE;
@@ -498,7 +500,7 @@ static NSInteger currentNetType = -1;
 -(void)StartUnzip:(NSString*) zipFilePath priority:(int)priority
 {
     NSLog(@"StartUnzip：%@",zipFilePath);
-    if([self HasAddedUnzipList:zipFilePath] || [self.unzipingDict.allKeys containsObject:zipFilePath])
+    if(NULL != [self HasAddedUnzipList:zipFilePath List:self.unzipList] || NULL != [self HasAddedUnzipList:zipFilePath List:self.unzipingList])
     {
         NSLog(@"StartUnzip is unziping：%@",zipFilePath);
         return;
@@ -601,7 +603,6 @@ static NSInteger currentNetType = -1;
     NSString* fileName = [FileUtil getFileNameByUrl:urlStr];
 
     NSURLSessionDownloadTask *downloadTask = nil;
-    NSLog(@"activeDownloadSessionTaskWithUrl%@",fileName);
     NSLog(@"activeDownloadSessionTaskWithUrl%@",self.resumeDataDict.allKeys);
     if ([self.resumeDataDict.allKeys containsObject:fileName]) {
         downloadTask = [self.session downloadTaskWithResumeData:self.resumeDataDict[fileName]];
@@ -838,20 +839,20 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
 
 -(void)RemoveDownloadInfo:(NSString*)downloadUrl
 {
-    NSLog(@"RemoveDownloadInfo current Thread start %@:",[NSThread currentThread]);
+    NSLog(@"RemoveDownloadInfo current Thread start %@:",downloadUrl);
     for (DownloadTaskInfo* info in self.downloadList) {
         if([info.downloadUrl isEqualToString:downloadUrl])
         {
             [self.downloadList removeObject:info];
-            NSLog(@"RemoveDownloadInfo current Thread end %@:",[NSThread currentThread]);
+            NSLog(@"RemoveDownloadInfo current Thread end %@:",downloadUrl);
             return;
         }
     }
 }
 
--(UnzipInfo*)HasAddedUnzipList:(NSString*)zipFilePath
+-(UnzipInfo*)HasAddedUnzipList:(NSString*)zipFilePath List:(QSThreadSafeMutableArray*)array
 {
-    for (UnzipInfo* info in self.unzipList) {
+    for (UnzipInfo* info in array) {
         if([info.zipFilePath isEqualToString:zipFilePath])
         {
             return info;
@@ -860,12 +861,12 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
     return NULL;
 }
 
--(void)RemoveUnzipInfo:(NSString*)zipFilePath
+-(void)RemoveUnzipInfoFromList:(NSString*)zipFilePath List:(QSThreadSafeMutableArray*)array
 {
-    for (UnzipInfo* info in self.unzipList) {
+    for (UnzipInfo* info in array) {
         if([info.zipFilePath isEqualToString:zipFilePath])
         {
-            [self.unzipList removeObject:info];
+            [array removeObject:info];
             return;
         }
     }
@@ -935,7 +936,7 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
 //    dispatch_async(dispatch_get_main_queue(), ^(){
         //移动文件到自己想要保存的路径下,location下的文件会被系统自动删除
     NSString* downloadUrl = downloadTask.taskDescription;
-    NSLog(@"didFinishDownloadingToURL URL:%@ thread:%@",downloadUrl,[NSThread currentThread]);
+    NSLog(@"didFinishDownloadingToURL URL:%@",downloadUrl);
     DownloadTaskInfo* info = [self HasAddedDownloadList:downloadUrl];
     int responseCode = -1;
     int errorScope = -1;
@@ -1027,7 +1028,7 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
              task:(nonnull NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error {
 //    dispatch_async(dispatch_get_main_queue(), ^(){
-    NSLog(@"didCompleteWithError thread:%@",[NSThread currentThread]);
+    NSLog(@"didCompleteWithError");
     NSString* downloadUrl = task.taskDescription;
     
     DownloadTaskInfo* info = [self HasAddedDownloadList:downloadUrl];
@@ -1337,7 +1338,7 @@ didCompleteWithError:(nullable NSError *)error {
         
         if(NotReachable == currentNetType)
         {
-            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(25000 * NSEC_PER_MSEC));
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5000 * NSEC_PER_MSEC));
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                 if(NotReachable == currentNetType)
                 {
@@ -1358,7 +1359,10 @@ didCompleteWithError:(nullable NSError *)error {
             }];
         }
     }
-    [self.session invalidateAndCancel];
+    if(NULL != _session)
+    {
+        [self.session invalidateAndCancel];
+    }
     self.session = NULL;
 }
 

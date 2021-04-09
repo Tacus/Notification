@@ -46,6 +46,7 @@ typedef  void (^CompleteHandler)(void);
 - (void) SetDownloadDelegate:(id<ProcessHandler>)delegate;
 -(void) setCompleteHandler:(CompleteHandler)completeHandler;
 -(void)RetryDownload;
+-(void)CancelAllDownload;
 @end
 
 #endif /* DownloadTaskManager_h */
