@@ -1002,13 +1002,11 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
              task:(nonnull NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error {
 //    dispatch_async(dispatch_get_main_queue(), ^(){
-    NSLog(@"didCompleteWithError");
     NSString* downloadUrl = task.taskDescription;
-    
+    NSLog(@"didCompleteWithError downloadUrl:%@",downloadUrl);
     DownloadTaskInfo* info = [self HasAddedDownloadList:downloadUrl];
     if (NULL != error && NULL != info)
     {
-        
         int errorScope = -1;
         if ([error.localizedDescription isEqualToString:@"cancelled"]) {
             if([self isWifiChToCellular])
