@@ -35,8 +35,8 @@ typedef  void (^CompleteHandler)(void);
 /**< 取消下载*/
 - (void)cancelDownloadWithUrl:(NSString *)urlStr;
 
-- (void)StartDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)downloadFileName fileSize:(int64_t)fileSize
-         delayInMills:(int)delayInMills priority:(int)priority;
+//- (void)StartDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)downloadFileName fileSize:(int64_t)fileSize
+//         delayInMills:(int)delayInMills priority:(int)priority;
 - (void)AddDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)fileName fileSize:(int64_t)fileSize
        delayInMills:(int)delayInMills priority:(int)priority;
 
@@ -47,6 +47,7 @@ typedef  void (^CompleteHandler)(void);
 -(void) setCompleteHandler:(CompleteHandler)completeHandler;
 -(void)RetryDownload;
 -(void)CancelAllDownload;
+-(void)Clear;
 @end
 
 #endif /* DownloadTaskManager_h */

@@ -199,4 +199,5 @@ void goToNtfSettingViewIOSImp(void)
 void CleariOSImp(void)
 {
     [[DownloadTaskManager shareManager] CancelAllDownload];
+    [[DownloadTaskManager shareManager] Clear];
 }

@@ -11,7 +11,6 @@
 #import <Foundation/Foundation.h>
 //QSThreadSafeMutableArray.h
 @interface QSThreadSafeMutableArray : NSMutableArray
-
 @end
 
 #endif /* Header_h */
