@@ -16,7 +16,7 @@
 {
     int unit = 1024;
     if (bytes < unit)
-        return [NSString stringWithFormat:@"%lu",bytes];
+        return [NSString stringWithFormat:@"%luB/s",bytes];
 //        return [bytes + @"B"];
     int exp = (int) (log(bytes) / log(unit));
     NSString* ch = [@"KMGTPE" substringWithRange:NSMakeRange(exp - 1, 1)];
