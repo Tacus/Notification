@@ -14,13 +14,13 @@
 
 #import <CoreFoundation/CoreFoundation.h>
 
-#import "Reachability.h"
+#import "Reachability_Zhang.h"
 
 #pragma mark IPv6 Support
 //Reachability fully support IPv6.  For full details, see ReadMe.md.
 
 
-NSString *kReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";
+NSString *kReachabilityChangedNotification_zhang = @"kNetworkReachabilityChangedNotification";
 
 
 #pragma mark - Supporting functions
@@ -54,22 +54,22 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	NSCAssert(info != NULL, @"info was NULL in ReachabilityCallback");
 	NSCAssert([(__bridge NSObject*) info isKindOfClass: [Reachability class]], @"info was wrong class in ReachabilityCallback");
 
-    Reachability* noteObject = (__bridge Reachability *)info;
+    Reachability_Zhang* noteObject = (__bridge Reachability_Zhang *)info;
     // Post a notification to notify the client that the network reachability changed.
-    [[NSNotificationCenter defaultCenter] postNotificationName: kReachabilityChangedNotification object: noteObject];
+    [[NSNotificationCenter defaultCenter] postNotificationName: kReachabilityChangedNotification_zhang object: noteObject];
 }
 
 
 #pragma mark - Reachability implementation
 
-@implementation Reachability
+@implementation Reachability_Zhang
 {
 	SCNetworkReachabilityRef _reachabilityRef;
 }
 
 + (instancetype)reachabilityWithHostName:(NSString *)hostName
 {
-	Reachability* returnValue = NULL;
+    Reachability_Zhang* returnValue = NULL;
 	SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, [hostName UTF8String]);
 	if (reachability != NULL)
 	{
@@ -90,7 +90,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 {
 	SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, hostAddress);
 
-	Reachability* returnValue = NULL;
+    Reachability_Zhang* returnValue = NULL;
 
 	if (reachability != NULL)
 	{

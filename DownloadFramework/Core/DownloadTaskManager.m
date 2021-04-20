@@ -19,7 +19,7 @@
 #import <UserNotifications/UNNotificationTrigger.h>
 #import <UIKit/UIApplication.h>
 #import "QSThreadSafeMutableArray.h"
-#import "Reachability.h"
+#import "Reachability_Zhang.h"
 @interface DownloadTaskInfo : NSObject
 @property NSString* downloadUrl;
 @property NSString* md5;
@@ -48,7 +48,7 @@ static NSUInteger maxUnzipSameTime = 1;
 static NSUInteger maxDownloadTryCount = 1;
 static int64_t totalSize = 0;
 static int64_t completeSize = 0;
-static Reachability *hostReachability;
+static Reachability_Zhang *hostReachability;
 static NSInteger netTypeUserConfirm = -1;
 static NSInteger currentNetType = -1;
 @implementation DownloadTaskInfo
@@ -70,6 +70,8 @@ static NSInteger currentNetType = -1;
 @property BOOL resumeDataClean;
 @property NSLock* unzipLock;
 @property NSLock* downloadListLock;
+@property (atomic,strong) dispatch_queue_t resumeDataQueue;
+@property (atomic,strong) dispatch_group_t resumeDataQueueGroup;
 @end
 
 @implementation DownloadTaskManager
@@ -85,6 +87,25 @@ static NSInteger currentNetType = -1;
     return downloadManager;
 }
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        _resumeDataDict = [NSMutableDictionary dictionary];
+        _downloadFailedDict = [NSMutableDictionary dictionary];
+        _unzipingList = [[QSThreadSafeMutableArray alloc]init];
+        _unzipList = [[QSThreadSafeMutableArray alloc]init];
+        _downloadList = [[QSThreadSafeMutableArray alloc] init] ;
+        _unzipLock = [[NSLock alloc]init];
+        _downloadListLock = [[NSLock alloc]init];
+        //create serial queue
+        _resumeDataQueue = dispatch_queue_create("resumeDataQueue", NULL);
+        _resumeDataQueueGroup = dispatch_group_create();
+    }
+    
+    [self initNetEnv];
+    return self;
+}
+
 -(NSURLSession*)session
 {
     if(NULL == _session)
@@ -97,7 +118,7 @@ static NSInteger currentNetType = -1;
         }
         else
         {
-            configuration.allowsCellularAccess = NO;
+            configuration.allowsCellularAccess = YES;
         }
         configuration.discretionary = false;
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
@@ -119,28 +140,17 @@ static NSInteger currentNetType = -1;
         return;
     }
     [self.downloadListLock lock];
-    if(self.downloadList.count == 0) return;
+    if(self.downloadList.count == 0)
+    {
+        [self.downloadListLock unlock];
+        return;
+    }
     DownloadTaskInfo* info = self.downloadList[0];
     [self.downloadListLock unlock];
     [info.downloadTask resume];
     [self initNetEnv];
 }
 
-- (instancetype)init
-{
-    if (self = [super init]) {
-        _resumeDataDict = [NSMutableDictionary dictionary];
-        _downloadFailedDict = [NSMutableDictionary dictionary];
-        _unzipingList = [[QSThreadSafeMutableArray alloc]init];
-        _unzipList = [[QSThreadSafeMutableArray alloc]init];
-        _downloadList = [[QSThreadSafeMutableArray alloc] init] ;
-        _unzipLock = [[NSLock alloc]init];
-        _downloadListLock = [[NSLock alloc]init];
-    }
-    
-    [self initNetEnv];
-    return self;
-}
 
 -(void)Clear
 {
@@ -175,9 +185,9 @@ static NSInteger currentNetType = -1;
     {
         [hostReachability stopNotifier];
     }
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification_zhang object:nil];
     NSString *remoteHostName = @"www.apple.com";
-    hostReachability = [Reachability reachabilityWithHostName:remoteHostName];
+    hostReachability = [Reachability_Zhang reachabilityWithHostName:remoteHostName];
     [hostReachability startNotifier];
     [self updateInterfaceWithReachability:hostReachability];
 }
@@ -285,6 +295,10 @@ static NSInteger currentNetType = -1;
         [self.processHandler downloadDone:@""];
         return;
     }
+    if(self.session)
+    {
+        
+    }
     netTypeUserConfirm = currentNetType;
     self.started = true;
     totalSize = 0;
@@ -362,12 +376,11 @@ static NSInteger currentNetType = -1;
         }
         else
         {
-            NSLog(@"剩余下%ld个下载重试3次依然未能成功! 正在重试%lu个之前下载失败的文件！",((unsigned long)leftCount),((unsigned long)(count - leftCount)));
+            NSLog(@"剩余下%ld个下载重试%lu次依然未能成功! 正在重试%lu个之前下载失败的文件！",((unsigned long)leftCount),(unsigned long)maxDownloadTryCount,((unsigned long)(count - leftCount)));
         }
     }
     else
     {
-        NSLog(@"AllDownloadDone");
         [self AllDownloadDone];
     }
 }
@@ -578,46 +591,39 @@ static NSInteger currentNetType = -1;
 {
     if(!self.resumeDataClean)
     {
-        __weak typeof(self) weakSelf = self;
         for (NSString *filePath in [self getResumeDataFilePathArray]) {
             //判断如果沙盒中有文件的resumeData数据,则把它存储到resumeDataDic中,用resumeData开启downloadTask
             NSString *fileName = [[filePath lastPathComponent] stringByDeletingPathExtension];
-            NSLog(@"fileName:%@",fileName);
-            NSLog(@"fileName:%@",[filePath lastPathComponent] );
-            dispatch_queue_t groupQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            dispatch_async(groupQueue,  ^{
-                if(NULL == weakSelf)
-                {
-                    return;
-                }
+//            dispatch_queue_t groupQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_group_async(self.resumeDataQueueGroup,self.resumeDataQueue,  ^{
                 NSData *resumeData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:nil];
-                [weakSelf.resumeDataDict setValue:resumeData forKey:fileName];
-                
+                [self.resumeDataDict setValue:resumeData forKey:fileName];
             });
         }
-        NSLog(@"resumeDataDict:%@",self.resumeDataDict.allKeys);
         self.resumeDataClean = TRUE;
     }
 }
 
 - (void)activeDownloadSessionTaskWithUrl:(NSString *)urlStr {
-    NSString* fileName = [FileUtil getFileNameByUrl:urlStr];
-
-    NSURLSessionDownloadTask *downloadTask = nil;
-    NSLog(@"activeDownloadSessionTaskWithUrl%@",self.resumeDataDict.allKeys);
-    if ([self.resumeDataDict.allKeys containsObject:fileName]) {
-        downloadTask = [self.session downloadTaskWithResumeData:self.resumeDataDict[fileName]];
-        NSLog(@"continue download:%@",urlStr);
-    } else {
-        downloadTask = [self.session downloadTaskWithURL:[NSURL URLWithString:urlStr]];
-        NSLog(@"new download:%@",urlStr);
-    }
-    
-    downloadTask.taskDescription = urlStr;
-    DownloadTaskInfo* info = [self HasAddedDownloadList:urlStr];
-    info.downloadTask = downloadTask;
-    [downloadTask resume];
-    NSLog(@"downloadTask = %@", downloadTask);
+    dispatch_group_notify(self.resumeDataQueueGroup,self.resumeDataQueue,^(){
+//        NSLog(@"resumeDataDict:%@",self.resumeDataDict.allKeys);
+        NSString* fileName = [FileUtil getFileNameByUrl:urlStr];
+        NSURLSessionDownloadTask *downloadTask = nil;
+        NSLog(@"activeDownloadSessionTaskWithUrl%@",self.resumeDataDict.allKeys);
+        if ([self.resumeDataDict.allKeys containsObject:fileName]) {
+            downloadTask = [self.session downloadTaskWithResumeData:self.resumeDataDict[fileName]];
+            NSLog(@"continue download:%@",urlStr);
+        } else {
+            downloadTask = [self.session downloadTaskWithURL:[NSURL URLWithString:urlStr]];
+            NSLog(@"new download:%@",urlStr);
+        }
+        
+        downloadTask.taskDescription = urlStr;
+        DownloadTaskInfo* info = [self HasAddedDownloadList:urlStr];
+        info.downloadTask = downloadTask;
+        [downloadTask resume];
+        NSLog(@"downloadTask = %@", downloadTask);
+    });
 }
 
 - (void)cancelDownloadWithUrl:(NSString *)urlStr andRemoveOrNot:(BOOL)isRemove {
@@ -813,7 +819,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
     else
     {
         [self Notify:[CommonUtil getDownloadTip]];
-        [self.processHandler downloadProgress:@"" progress:100];
+        [self.processHandler downloadProgress:@"" progress:100 speed:@""];
         [self.processHandler downloadDone:@""];
     }
 }
@@ -897,7 +903,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         {
             progress = 1.0;
         }
-        [self.processHandler downloadProgress:downloadTask.taskDescription progress:progress*100];
+        [self.processHandler downloadProgress:downloadTask.taskDescription progress:progress*100 speed:speedStr];
         lastWriteDeltaTime = currentTime;
         lastWriteDeltaData = 0;
 //        NSLog(@"download task description%@,%@,%f",downloadTask.taskDescription,downloadTask,progress);
@@ -1273,18 +1279,18 @@ didCompleteWithError:(nullable NSError *)error {
 
 - (void)dealloc {
     [self.session invalidateAndCancel];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification_zhang object:nil];
 }
 
 - (void) reachabilityChanged:(NSNotification *)note
 {
-    Reachability* curReach = [note object];
+    Reachability_Zhang* curReach = [note object];
     NSParameterAssert([curReach isKindOfClass:[Reachability class]]);
     [self updateInterfaceWithReachability:curReach];
     
 }
 
-- (void)updateInterfaceWithReachability:(Reachability *)reachability
+- (void)updateInterfaceWithReachability:(Reachability_Zhang *)reachability
 {
     if (reachability == hostReachability)
     {
@@ -1332,16 +1338,16 @@ didCompleteWithError:(nullable NSError *)error {
     [self.downloadListLock lock];
     NSArray* array = [self.downloadList mutableCopy];
     [self.downloadListLock unlock];
+    if(0 == array.count) return;
     for (DownloadTaskInfo* info in array) {
         NSLog(@"cancel CancelAllDownload url:%@",info.downloadUrl);
         if(NULL != info.downloadTask)
         {
-            NSLog(@"cancel downloadTask task not null, url:%@",info.downloadUrl);
-            info.downloadTask = NULL;
             [info.downloadTask cancelByProducingResumeData:^(NSData* resumeDate){
                 NSLog(@"cancel allDownload url:%@",info.downloadUrl);
                 [self saveDownloadTmpFileWithResumeData:resumeDate url:info.downloadUrl];
             }];
+            info.downloadTask = NULL;
         }
     }
    

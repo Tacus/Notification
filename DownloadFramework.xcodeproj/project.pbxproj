@@ -56,8 +56,8 @@
 		168CE4E525F8948F00D50B4F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 168CE4E425F8948F00D50B4F /* Security.framework */; };
 		168CE4E725F8949D00D50B4F /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 168CE4E625F8949D00D50B4F /* libz.tbd */; };
 		168CE4EA25F894A800D50B4F /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 168CE4E925F894A800D50B4F /* libiconv.tbd */; };
-		BAF71C7E2619DBB400E4EE08 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = BAF71C7C2619DBB400E4EE08 /* Reachability.m */; };
-		BAF71C7F2619DBB400E4EE08 /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = BAF71C7D2619DBB400E4EE08 /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BAF71C7E2619DBB400E4EE08 /* Reachability_Zhang.m in Sources */ = {isa = PBXBuildFile; fileRef = BAF71C7C2619DBB400E4EE08 /* Reachability_Zhang.m */; };
+		BAF71C7F2619DBB400E4EE08 /* Reachability_Zhang.h in Headers */ = {isa = PBXBuildFile; fileRef = BAF71C7D2619DBB400E4EE08 /* Reachability_Zhang.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -113,8 +113,8 @@
 		168CE4E425F8948F00D50B4F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		168CE4E625F8949D00D50B4F /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		168CE4E925F894A800D50B4F /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libiconv.tbd; sourceTree = DEVELOPER_DIR; };
-		BAF71C7C2619DBB400E4EE08 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		BAF71C7D2619DBB400E4EE08 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		BAF71C7C2619DBB400E4EE08 /* Reachability_Zhang.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability_Zhang.m; sourceTree = "<group>"; };
+		BAF71C7D2619DBB400E4EE08 /* Reachability_Zhang.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability_Zhang.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,8 +249,8 @@
 		BAF71C7B2619DBB400E4EE08 /* Reachability */ = {
 			isa = PBXGroup;
 			children = (
-				BAF71C7C2619DBB400E4EE08 /* Reachability.m */,
-				BAF71C7D2619DBB400E4EE08 /* Reachability.h */,
+				BAF71C7C2619DBB400E4EE08 /* Reachability_Zhang.m */,
+				BAF71C7D2619DBB400E4EE08 /* Reachability_Zhang.h */,
 			);
 			path = Reachability;
 			sourceTree = "<group>";
@@ -283,7 +283,7 @@
 				168CE4BE25F8940C00D50B4F /* ZipArchive.h in Headers */,
 				168CE4C225F8940C00D50B4F /* mz_compat.h in Headers */,
 				168CE4CB25F8940C00D50B4F /* mz_strm.h in Headers */,
-				BAF71C7F2619DBB400E4EE08 /* Reachability.h in Headers */,
+				BAF71C7F2619DBB400E4EE08 /* Reachability_Zhang.h in Headers */,
 				168CE4DD25F8940C00D50B4F /* SSZipArchive.h in Headers */,
 				168CE4D125F8940C00D50B4F /* mz_strm_pkcrypt.h in Headers */,
 			);
@@ -374,7 +374,7 @@
 				168CE4CC25F8940C00D50B4F /* mz_strm_mem.c in Sources */,
 				168CE4CE25F8940C00D50B4F /* mz_strm_wzaes.c in Sources */,
 				161109B325F7231900CE1F1B /* DownloadBridge.mm in Sources */,
-				BAF71C7E2619DBB400E4EE08 /* Reachability.m in Sources */,
+				BAF71C7E2619DBB400E4EE08 /* Reachability_Zhang.m in Sources */,
 				168CE4BF25F8940C00D50B4F /* mz_strm_os_posix.c in Sources */,
 				168CE4D725F8940C00D50B4F /* mz_strm_buf.c in Sources */,
 				168CE4D525F8940C00D50B4F /* mz_os_posix.c in Sources */,

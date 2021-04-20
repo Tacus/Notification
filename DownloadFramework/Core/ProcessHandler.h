@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(void) downloadFailure:(NSString*)url errorScope:(int) errorScope errorMsg:(NSString*) msg responseCode:(int) responseCode;
 
 @required
--(void) downloadProgress:(NSString*)url progress:(int)progress;
+-(void) downloadProgress:(NSString*)url progress:(int)progress speed:(NSString*)speed;
 
 @required
 -(void) downloadComplete:(NSString*)url downloadedFilePath:(NSString*)downloadedFilePath;

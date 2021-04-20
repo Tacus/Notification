@@ -39,11 +39,11 @@ IsNtfAuthDisable ntfAuthDisableDelegate = NULL;
     }
 }
 
--(void) downloadProgress:(NSString*)downloadUrl progress:(int)progress
+-(void) downloadProgress:(NSString*)downloadUrl progress:(int)progress speed:(nonnull NSString *)speed
 {
     if(NULL != downloadProgressDelegate)
     {
-        downloadProgressDelegate([downloadUrl UTF8String],progress);
+        downloadProgressDelegate([downloadUrl UTF8String],progress,[speed UTF8String]);
     }
 }
 
@@ -198,6 +198,7 @@ void goToNtfSettingViewIOSImp(void)
 
 void CleariOSImp(void)
 {
+    NSLog(@"CleariOSImp");
     [[DownloadTaskManager shareManager] CancelAllDownload];
     [[DownloadTaskManager shareManager] Clear];
 }

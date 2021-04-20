@@ -37,7 +37,7 @@ extern "C"
 //
 typedef void(*DownloadComplete)(const char *url,const char * downloadedFilePath);
 typedef void(*DownloadFailure)(const char *url,int errorScope,const char* errorMsg,int responseCode);
-typedef void(*DownloadProgress)(const char *url,int progress);
+typedef void(*DownloadProgress)(const char *url,int progress,const char* speed);
 typedef void(*DownloadDone)(const char * errorMsg);
 
 typedef void(*UnzipFailure)(const char *zipFilePath,const char* errorMsg,int errorScope);

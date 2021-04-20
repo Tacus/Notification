@@ -21,10 +21,10 @@ typedef enum : NSInteger {
 //Reachability fully support IPv6.  For full details, see ReadMe.md.
 
 
-extern NSString *kReachabilityChangedNotification;
+extern NSString *kReachabilityChangedNotification_zhang;
 
-
-@interface Reachability : NSObject
+//Reachability avoid conflict
+@interface Reachability_Zhang : NSObject
 
 /*!
  * Use to check the reachability of a given host name.
