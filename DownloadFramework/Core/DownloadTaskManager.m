@@ -913,7 +913,7 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
         }
         lastWriteDeltaTime = currentTime;
         long speedDelta = currentTime - lastSpeedTime;
-        if(speedDelta > 1000)
+        if(speedDelta > 2000)
         {
             lastSpeed = lastWriteDeltaData * 1000.0 /speedDelta;
             lastSpeedTime = currentTime;
