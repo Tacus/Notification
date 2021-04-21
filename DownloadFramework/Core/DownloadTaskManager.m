@@ -43,6 +43,11 @@
 @end
 static NSUInteger lastWriteDeltaData = 0;
 static NSUInteger lastWriteDeltaTime = 0;
+
+//cal speed
+static NSUInteger lastSpeed = 0;
+static NSUInteger lastSpeedTime = 0;
+
 static NSUInteger lastUnzipDeltaTime = 0;
 static NSUInteger maxUnzipSameTime = 1;
 static NSUInteger maxDownloadTryCount = 1;
@@ -145,9 +150,16 @@ static NSInteger currentNetType = -1;
         [self.downloadListLock unlock];
         return;
     }
-    DownloadTaskInfo* info = self.downloadList[0];
+    
+    NSArray* array = [self.downloadList mutableCopy];
     [self.downloadListLock unlock];
-    [info.downloadTask resume];
+    for (DownloadTaskInfo* info in array)
+    {
+        if(NULL != info.downloadTask)
+        {
+            [info.downloadTask resume];
+        }
+    }
     [self initNetEnv];
 }
 
@@ -894,19 +906,22 @@ totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     if( deltaTime > 300)
     {
         float progress = [self CalProgress:downloadTask.taskDescription totalBytesWritten:totalBytesWritten totalBytesExpectedToWrite:totalBytesExpectedToWrite];
-        
-        NSInteger speed = lastWriteDeltaData * 1000.0 /deltaTime;
-        NSString* speedStr = [StringUtil humanReadableByteCount:speed];
-
-        NSLog(@"download task descriptio %@,totalBytesWritten:%lld,totalBytesExpectedToWrite:%lld,progress:%f,speed:%@",downloadTask.taskDescription,totalBytesWritten,totalBytesExpectedToWrite,progress,speedStr);
+       
         if(progress >1.0)
         {
             progress = 1.0;
         }
-        [self.processHandler downloadProgress:downloadTask.taskDescription progress:progress*100 speed:speedStr];
         lastWriteDeltaTime = currentTime;
-        lastWriteDeltaData = 0;
-//        NSLog(@"download task description%@,%@,%f",downloadTask.taskDescription,downloadTask,progress);
+        long speedDelta = currentTime - lastSpeedTime;
+        if(speedDelta > 1000)
+        {
+            lastSpeed = lastWriteDeltaData * 1000.0 /speedDelta;
+            lastSpeedTime = currentTime;
+            lastWriteDeltaData = 0;
+        }
+        
+        NSString* speedStr = [StringUtil humanReadableByteCount:lastSpeed];
+        [self.processHandler downloadProgress:downloadTask.taskDescription progress:progress*100 speed:speedStr];
     }
 }
 
