@@ -150,7 +150,8 @@ static NSInteger currentNetType = -1;
         [self.downloadListLock unlock];
         return;
     }
-    
+//    DownloadTaskInfo* info = self.downloadList[0];
+//    [info.downloadTask resume];
     NSArray* array = [self.downloadList mutableCopy];
     [self.downloadListLock unlock];
     for (DownloadTaskInfo* info in array)
