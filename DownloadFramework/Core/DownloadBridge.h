@@ -47,7 +47,7 @@ typedef void(*UnzipDone)(void);
 
 typedef void(*IsNtfAuthDisable)(BOOL result);
 
-void InitDownload(const char* downloadDirPath,const char* unzipDirPath,int totalDownloadCount);
+void InitDownload(const char* downloadDirPath,const char* unzipDirPath,int totalDownloadCount,const char* assetLocationInfoPath);
 
 
 void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, DownloadComplete func2,DownloadDone func3);
@@ -56,7 +56,7 @@ void RegisterUnzipCallback(UnzipFailure func, UnzipProgress func1, UnzipComplete
 
 void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills,int priority);
 void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills,int priority);
-void StartUnzipiOSImp(const char* downLoadedFilePath,int priority);
+void StartUnzipiOSImp(const char* downLoadedFilePath,int priority,int flag);
 void StartiOSImp(void);
 void isNtfEnableIOSImp(IsNtfAuthDisable);
 void goToNtfSettingViewIOSImp(void);

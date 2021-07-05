@@ -571,7 +571,7 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
     return FALSE;
 }
 
--(void)StartUnzip:(NSString*) zipFilePath priority:(int)priority
+-(void)StartUnzip:(NSString*) zipFilePath priority:(int)priority flag:(int)flag
 {
     NSLog(@"StartUnzip：%@",zipFilePath);
     if(NULL != [self HasAddedUnzipList:zipFilePath List:self.unzipList] || NULL != [self HasAddedUnzipList:zipFilePath List:self.unzipingList])

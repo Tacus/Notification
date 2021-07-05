@@ -143,7 +143,7 @@ void StartiOSImp()
     [[DownloadTaskManager shareManager] Start];
 }
 
-void StartUnzipiOSImp(const char* downLoadedFilePath,int priority)
+void StartUnzipiOSImp(const char* downLoadedFilePath,int priority,int flag)
 {
     NSLog(@"StartUnzipiOSImp");
     [[DownloadTaskManager shareManager] StartUnzip:[NSString stringWithUTF8String:downLoadedFilePath]  priority:priority];
