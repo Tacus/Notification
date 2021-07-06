@@ -86,7 +86,9 @@ typedef NS_ENUM(NSInteger, SSZipArchiveErrorCode) {
                   error:(NSError **)error
                delegate:(nullable id<SSZipArchiveDelegate>)delegate
         progressHandler:(void (^_Nullable)(NSString *entry, unz_file_info zipInfo, long entryNumber, long total))progressHandler
-      completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler;
+      completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler
+ unzipSingleFileHandler:(BOOL (^_Nullable)(NSString*))unzipSingleFileHandler;
+
 
 // Zip
 // default compression level is Z_DEFAULT_COMPRESSION (from "zlib.h")

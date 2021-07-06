@@ -277,7 +277,7 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
         progressHandler:(void (^_Nullable)(NSString *entry, unz_file_info zipInfo, long entryNumber, long total))progressHandler
       completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler
 {
-    return [self unzipFileAtPath:path toDestination:destination preserveAttributes:preserveAttributes overwrite:overwrite nestedZipLevel:0 password:password error:error delegate:delegate progressHandler:progressHandler completionHandler:completionHandler];
+    return [self unzipFileAtPath:path toDestination:destination preserveAttributes:preserveAttributes overwrite:overwrite nestedZipLevel:0 password:password error:error delegate:delegate progressHandler:progressHandler completionHandler:completionHandler unzipSingleFileHandler:nil];
 }
 
 
@@ -291,6 +291,7 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
                delegate:(nullable id<SSZipArchiveDelegate>)delegate
         progressHandler:(void (^_Nullable)(NSString *entry, unz_file_info zipInfo, long entryNumber, long total))progressHandler
       completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler
+ unzipSingleFileHandler:(BOOL (^_Nullable)(NSString*))unzipSingleFileHandler
 {
     // Guard against empty strings
     if (path.length == 0 || destination.length == 0)
@@ -443,6 +444,14 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
                 continue;
             }
             
+            if(NULL != unzipSingleFileHandler && !unzipSingleFileHandler(strPath))
+            {
+                unzCloseCurrentFile(zip);
+                ret = unzGoToNextFile(zip);
+                free(filename);
+                continue;
+            }
+            
             // Check if it contains directory
             BOOL isDirectory = NO;
             if (filename[fileInfo.size_filename-1] == '/' || filename[fileInfo.size_filename-1] == '\\') {
@@ -531,7 +540,8 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
                                                error:nil
                                             delegate:nil
                                      progressHandler:nil
-                                   completionHandler:nil]) {
+                                   completionHandler:nil
+                                unzipSingleFileHandler:nil]) {
                             [directoriesModificationDates removeLastObject];
                             [[NSFileManager defaultManager] removeItemAtPath:fullPath error:nil];
                         } else if (preserveAttributes) {

@@ -54,8 +54,8 @@ void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, Down
 
 void RegisterUnzipCallback(UnzipFailure func, UnzipProgress func1, UnzipComplete func2,UnzipDone func3);
 
-void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills,int priority);
-void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills,int priority);
+void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills,int priority,int flag);
+void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills,int priority,int flag);
 void StartUnzipiOSImp(const char* downLoadedFilePath,int priority,int flag);
 void StartiOSImp(void);
 void isNtfEnableIOSImp(IsNtfAuthDisable);

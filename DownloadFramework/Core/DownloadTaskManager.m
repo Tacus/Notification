@@ -23,6 +23,7 @@
 #import <mach-o/dyld.h>
 #import <dlfcn.h>
 #import <mach-o/loader.h>
+#import "AssetLocationInfo.h"
 @interface DownloadTaskInfo : NSObject
 @property NSString* downloadUrl;
 @property NSString* md5;
@@ -36,6 +37,7 @@
 @property NSInteger responseCode;
 @property NSUInteger tryCount;
 @property int priority;
+@property int flag;
 @end
 
 @interface UnzipInfo : NSObject
@@ -43,6 +45,7 @@
 @property NSUInteger unzipedCount;
 @property NSUInteger unzipTotalCount;
 @property int priority;
+@property int flag;
 @end
 static NSUInteger lastWriteDeltaData = 0;
 static NSUInteger lastWriteDeltaTime = 0;
@@ -84,50 +87,47 @@ static NSInteger currentNetType = -1;
 
 @implementation DownloadTaskManager
 
-
-
-
-static void _print_image(const struct mach_header *mh, bool added)
-{
-    Dl_info image_info;
-    int result = dladdr(mh, &image_info);
-
-    if (result == 0) {
-        printf("Could not print info for mach_header: %p\n\n", mh);
-        return;
-    }
-
-    const char *image_name = image_info.dli_fname;
-
-    const intptr_t image_base_address = (intptr_t)image_info.dli_fbase;
-//    const uint64_t image_text_size = _image_text_segment_size(mh);
-
-//    char image_uuid[37];
-//    const uuid_t *image_uuid_bytes = _image_retrieve_uuid(mh);
-//    uuid_unparse(*image_uuid_bytes, image_uuid);
-
-    const char *log = added ? "Added" : "Removed";
-    printf("%s: 0x%02lx %s \n\n", log, image_base_address, image_name);
-}
-
-+ (void)load
-{
-    _dyld_register_func_for_add_image(&image_added);
-    _dyld_register_func_for_remove_image(&image_removed);
-}
-
-
-static void image_added(const struct mach_header *mh, intptr_t slide)
-{
-    _print_image(mh, true);
-    NSLog(@"image added !!!!!!!!!!!!!!!!!!!!!!!!!!!");
-}
-
-static void image_removed(const struct mach_header *mh, intptr_t slide)
-{
-    _print_image(mh, false);
-    NSLog(@"image removed !!!!!!!!!!!!!!!!!!!!!!!!!!!");
-}
+//static void _print_image(const struct mach_header *mh, bool added)
+//{
+//    Dl_info image_info;
+//    int result = dladdr(mh, &image_info);
+//
+//    if (result == 0) {
+//        printf("Could not print info for mach_header: %p\n\n", mh);
+//        return;
+//    }
+//
+//    const char *image_name = image_info.dli_fname;
+//
+//    const intptr_t image_base_address = (intptr_t)image_info.dli_fbase;
+////    const uint64_t image_text_size = _image_text_segment_size(mh);
+//
+////    char image_uuid[37];
+////    const uuid_t *image_uuid_bytes = _image_retrieve_uuid(mh);
+////    uuid_unparse(*image_uuid_bytes, image_uuid);
+//
+//    const char *log = added ? "Added" : "Removed";
+//    printf("%s: 0x%02lx %s \n\n", log, image_base_address, image_name);
+//}
+//
+//+ (void)load
+//{
+//    _dyld_register_func_for_add_image(&image_added);
+//    _dyld_register_func_for_remove_image(&image_removed);
+//}
+//
+//
+//static void image_added(const struct mach_header *mh, intptr_t slide)
+//{
+//    _print_image(mh, true);
+//    NSLog(@"image added !!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//}
+//
+//static void image_removed(const struct mach_header *mh, intptr_t slide)
+//{
+//    _print_image(mh, false);
+//    NSLog(@"image removed !!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//}
 + (instancetype)shareManager {
     static DownloadTaskManager *downloadManager = nil;
     
@@ -149,7 +149,6 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
         _downloadList = [[QSThreadSafeMutableArray alloc] init] ;
         _unzipLock = [[NSLock alloc]init];
         _downloadListLock = [[NSLock alloc]init];
-        //create serial queue
         _resumeDataQueue = dispatch_queue_create("resumeDataQueue", NULL);
         _resumeDataQueueGroup = dispatch_group_create();
     }
@@ -296,7 +295,7 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
 //}
 
 - (void)AddDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)fileName fileSize:(int64_t)fileSize
-       delayInMills:(int)delayInMills  priority:(int)priority
+       delayInMills:(int)delayInMills  priority:(int)priority flag:(int)flag
 {
     NSLog(@"AddDownload url:%@ md5 %@:fileName %@:filesize:%lld delayInMills:%d",
           downloadUrl,md5,fileName,fileSize,delayInMills);
@@ -310,7 +309,7 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
     if(ret)
     {
         [self.processHandler downloadComplete:downloadUrl downloadedFilePath:localFilePath];
-        [self StartUnzip:localFilePath priority:priority];
+        [self StartUnzip:localFilePath priority:priority flag:flag];
         NSLog(@"已经下载完成:%@", localFilePath);
         return;
     }
@@ -319,13 +318,15 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
     if(NULL != info)
     {
         info.md5 = md5;
+        info.flag = flag;
         info.priority = priority;
         info.totalBytesExpectedToWrite = fileSize;
+        info.flag = flag;
         NSLog(@"already exsit downloadUrl:%@",downloadUrl);
         return;
     }
     
-    info = [self getTaskInfoWithUrl:downloadUrl fileName:fileName md5:md5 fileSize:fileSize priority:priority];
+    info = [self getTaskInfoWithUrl:downloadUrl fileName:fileName md5:md5 fileSize:fileSize priority:priority flag:flag];
     self.resumeDataClean = FALSE;
     [self intResumeDataDict];
     [self.downloadListLock lock];
@@ -579,7 +580,7 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
         NSLog(@"StartUnzip is unziping：%@",zipFilePath);
         return;
     }
-    [self.unzipList addObject:[self GetUnzipInfo:zipFilePath priority:priority]];
+    [self.unzipList addObject:[self GetUnzipInfo:zipFilePath priority:priority flag:flag]];
 
     NSArray* array = [self.unzipList sortedArrayUsingComparator:^NSComparisonResult(UnzipInfo* obj1, UnzipInfo* obj2) {
         //这里的代码可以参照上面compare:默认的排序方法，也可以把自定义的方法写在这里，给对象排序
@@ -610,6 +611,13 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
 //        progressHandler:(void (^_Nullable)(NSString *entry, unz_file_info zipInfo, long entryNumber, long total))progressHandler
 //      completionHandler:(void (^_Nullable)(NSString *path, BOOL succeeded, NSError * _Nullable error))completionHandler;
 
+-(BOOL) NoNeedUnzip:(NSString*) entryName
+{
+    NSLog(@"ifNeedUnzip entryName:%@,current",entryName);
+    int current = 0;
+    NSString* location = [[AssetLocationInfo shareInstance] getAssetLocation:entryName];
+    return current == [location isEqual:location];
+}
 
 - (void)StartUnzipProcess:(NSString*)zipFilePath
 {
@@ -633,15 +641,21 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
         {
             [weakSelf unzipComplete:path succeeded:succeeded error:error];
             
-        }];
+        }
+               unzipSingleFileHandler: ^(NSString* assetName)
+        {
+            return [weakSelf NoNeedUnzip:assetName];
+        }
+         ];
     });
 }
 
--(UnzipInfo*)GetUnzipInfo:(NSString*)unzipFilePath priority:(int)priority
+-(UnzipInfo*)GetUnzipInfo:(NSString*)unzipFilePath priority:(int)priority flag:(int)flag
 {
     UnzipInfo* info = [[UnzipInfo alloc] init];
     info.zipFilePath = unzipFilePath;
     info.priority = priority;
+    info.flag = flag;
     return info;
 }
 
@@ -750,7 +764,7 @@ static void image_removed(const struct mach_header *mh, intptr_t slide)
     DownloadTaskInfo* info = [self HasAddedDownloadList:downloadUrl];
     if(NULL == info)
     {
-        DownloadTaskInfo* info = [self getTaskInfoWithUrl:downloadUrl fileName:NULL md5:NULL fileSize:0 priority:0];
+        DownloadTaskInfo* info = [self getTaskInfoWithUrl:downloadUrl fileName:NULL md5:NULL fileSize:0 priority:0 flag:0];
         [self.downloadListLock lock];
         [self.downloadList addObject:info];
         [self.downloadListLock unlock];
@@ -1046,7 +1060,7 @@ didFinishDownloadingToURL:(nonnull NSURL *)location {
         if(NULL == errorMsg)
         {
             [self.processHandler downloadComplete:info.downloadUrl downloadedFilePath:downloadFilePath];
-            [self StartUnzip:downloadFilePath priority:info.priority];
+            [self StartUnzip:downloadFilePath priority:info.priority flag:info.flag];
         }
         else
         {
@@ -1297,7 +1311,7 @@ didCompleteWithError:(nullable NSError *)error {
     return TRUE;
 }
 
--(DownloadTaskInfo*) getTaskInfoWithUrl:(NSString*)downloadUrl fileName:(NSString*)fileName md5:(NSString*)md5 fileSize:(int64_t)fileSize priority:(int)priority
+-(DownloadTaskInfo*) getTaskInfoWithUrl:(NSString*)downloadUrl fileName:(NSString*)fileName md5:(NSString*)md5 fileSize:(int64_t)fileSize priority:(int)priority flag:(int)flag
 {
     NSString* localFilePath = [FileUtil getDownloadFilePathByUrl:downloadUrl fileName:NULL downloadDirPath:self.downloadTargetPath];
     DownloadTaskInfo* info = [DownloadTaskInfo alloc];
@@ -1306,6 +1320,7 @@ didCompleteWithError:(nullable NSError *)error {
     info.md5 = md5;
     info.totalBytesExpectedToWrite = fileSize;
     info.tryCount = 0;
+    info.flag = flag;
     info.priority = priority;
     if(NULL == fileName)
     {

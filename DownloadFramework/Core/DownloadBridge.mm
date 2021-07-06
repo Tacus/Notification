@@ -15,6 +15,7 @@
 #import <NotificationCenter/NotificationCenter.h>
 #import <UserNotifications/UserNotifications.h>
 #import <UserNotifications/UNNotification.h>
+#import "AssetLocationInfo.h"
 @interface DownloadBridge : NSObject<ProcessHandler>
     
 @end
@@ -101,7 +102,7 @@ IsNtfAuthDisable ntfAuthDisableDelegate = NULL;
 
 static DownloadBridge *__delegate = nil;
 
-void InitDownload(const char*downloadDirPath,const char*unzipDirPath,int totalDownloadCount)
+void InitDownload(const char*downloadDirPath,const char*unzipDirPath,int totalDownloadCount,const char* assetLocationInfoPath)
 {
     if(!__delegate)
     {
@@ -111,14 +112,16 @@ void InitDownload(const char*downloadDirPath,const char*unzipDirPath,int totalDo
         [[DownloadTaskManager shareManager] SetDownloadDelegate:__delegate];
         [[DownloadTaskManager shareManager] InitDownload:downloadPath unzipDirPath:unzipPath totalDownloadCount:totalDownloadCount];
     }
+    NSString* assetInfoPath = [NSString stringWithUTF8String:assetLocationInfoPath];
+    [[AssetLocationInfo shareInstance] Init:assetInfoPath];
 }
 
-void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills,int priority)
+void StartDownloadiOSImp(const char* url,const char*md5,const char* fileName,int64_t fileSize, int delayInMills,int priority,int flag)
 {
-    AddDownload(url,md5,fileName,fileSize,delayInMills,priority);
+    AddDownload(url,md5,fileName,fileSize,delayInMills,priority,flag);
 }
 
-void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills,int priority)
+void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fileSize,int delayInMills,int priority,int flag)
 {
     NSString* downloadUrl = [NSString stringWithUTF8String:url];
     NSString* downloadFileMd5 = NULL;
@@ -134,7 +137,7 @@ void AddDownload(const char* url,const char*md5,const char* fileName,int64_t fil
     }
     //downloadUrl = [NSString stringWithFormat:@"%@111",downloadUrl];
     [[DownloadTaskManager shareManager] AddDownload:downloadUrl md5:downloadFileMd5 fileName:downloadFileName
-                                           fileSize:fileSize delayInMills:delayInMills priority:priority];
+                                           fileSize:fileSize delayInMills:delayInMills priority:priority flag:flag];
 }
 
 void StartiOSImp()
@@ -146,7 +149,7 @@ void StartiOSImp()
 void StartUnzipiOSImp(const char* downLoadedFilePath,int priority,int flag)
 {
     NSLog(@"StartUnzipiOSImp");
-    [[DownloadTaskManager shareManager] StartUnzip:[NSString stringWithUTF8String:downLoadedFilePath]  priority:priority];
+    [[DownloadTaskManager shareManager] StartUnzip:[NSString stringWithUTF8String:downLoadedFilePath]  priority:priority flag:flag];
 }
 
 void RegisterDownloadCallback(DownloadFailure func, DownloadProgress func1, DownloadComplete func2,DownloadDone func3)

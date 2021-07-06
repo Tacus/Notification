@@ -38,9 +38,9 @@ typedef  void (^CompleteHandler)(void);
 //- (void)StartDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)downloadFileName fileSize:(int64_t)fileSize
 //         delayInMills:(int)delayInMills priority:(int)priority;
 - (void)AddDownload:(NSString*)downloadUrl md5:(NSString*)md5  fileName:(NSString*)fileName fileSize:(int64_t)fileSize
-       delayInMills:(int)delayInMills priority:(int)priority;
+       delayInMills:(int)delayInMills priority:(int)priority flag:(int)flag;
 
-- (void)StartUnzip:(NSString*)zipFilePath priority:(int)priority;
+- (void)StartUnzip:(NSString*)zipFilePath priority:(int)priority flag:(int)flag;
 -(void)Start;
 - (void) InitDownload:(NSString*)downloadDirPath unzipDirPath:(NSString*)unzipDirPath totalDownloadCount:(int) totalDownloadCount;
 - (void) SetDownloadDelegate:(id<ProcessHandler>)delegate;
